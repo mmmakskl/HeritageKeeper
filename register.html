@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="register-page">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Регистрация</h4>
+                </div>
+                <div class="card-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" id="register-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-fullname" class="form-label">Полное имя</label>
+                            <input type="text" class="form-control" id="register-fullname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="register-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-confirm-password" class="form-label">Подтвердите пароль</label>
+                            <input type="password" class="form-control" id="register-confirm-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-profile-image" class="form-label">Изображение профиля</label>
+                            <input type="file" class="form-control" id="register-profile-image" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                        <button type="button" class="btn btn-link" id="show-login">Уже есть аккаунт? Войти</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

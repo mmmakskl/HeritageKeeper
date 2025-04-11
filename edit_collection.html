@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="edit-collection-page">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0" id="collection-form-title">Добавить коллекцию</h4>
+                </div>
+                <div class="card-body">
+                    <form id="collection-form">
+                        <input type="hidden" id="collection-id">
+                        <div class="mb-3">
+                            <label for="collection-name" class="form-label">Название коллекции</label>
+                            <input type="text" class="form-control" id="collection-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="collection-description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="collection-description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="collection-image" class="form-label">Главное изображение</label>
+                            <input type="file" class="form-control" id="collection-image" accept="image/*">
+                            <div class="mt-2" id="collection-image-preview-container" style="display: none;">
+                                <img src="#" alt="Preview" id="collection-image-preview" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="collection-private">
+                            <label class="form-check-label" for="collection-private">Приватная коллекция</label>
+                        </div>
+                        <div class="mb-3">
+                            <h5>Предметы коллекции</h5>
+                            <div id="collection-items">
+                                <!-- Предметы будут добавляться здесь -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-item-btn">Добавить предмет</button>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" id="cancel-collection-btn">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить коллекцию</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Шаблон для предмета коллекции -->
+<template id="item-template">
+    <div class="card mb-3 item-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Предмет</span>
+            <button type="button" class="btn btn-sm btn-danger delete-item-btn">&times;</button>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-control item-title" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание</label>
+                <textarea class="form-control item-description" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Год</label>
+                <input type="number" class="form-control item-year">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Состояние</label>
+                <select class="form-select item-condition">
+                    <option value="excellent">Отличное</option>
+                    <option value="good">Хорошее</option>
+                    <option value="satisfactory">Удовлетворительное</option>
+                    <option value="poor">Плохое</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Материал</label>
+                <input type="text" class="form-control item-material">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Атрибуты</label>
+                <div class="item-attributes-container">
+                    <!-- Атрибуты будут добавляться здесь -->
+                </div>
+                <div class="input-group mt-2">
+                    <input type="text" class="form-control attribute-key" placeholder="Название атрибута">
+                    <input type="text" class="form-control attribute-value" placeholder="Значение">
+                    <button type="button" class="btn btn-outline-secondary add-attribute-btn">Добавить</button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Изображения</label>
+                <input type="file" class="form-control item-images" multiple accept="image/*">
+                <div class="mt-2 item-images-preview"></div>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}

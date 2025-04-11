@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="edit-profile-page">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Редактирование профиля</h4>
+                </div>
+                <div class="card-body">
+                    <form id="edit-profile-form">
+                        <div class="mb-3 text-center">
+                            <img src="https://via.placeholder.com/150" alt="Profile" class="profile-image mb-3" id="edit-profile-image">
+                            <input type="file" class="form-control d-none" id="profile-image-input" accept="image/*">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('profile-image-input').click()">Изменить фото</button>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-fullname" class="form-label">Полное имя</label>
+                            <input type="text" class="form-control" id="edit-fullname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-username" class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" id="edit-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-password" class="form-label">Новый пароль (оставьте пустым, если не хотите менять)</label>
+                            <input type="password" class="form-control" id="edit-password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-confirm-password" class="form-label">Подтвердите новый пароль</label>
+                            <input type="password" class="form-control" id="edit-confirm-password">
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" id="cancel-edit-profile">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
