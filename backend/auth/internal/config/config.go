@@ -9,17 +9,19 @@ import (
 )
 
 type Config struct {
-	Env     string `yaml:"env" env-default:"local"`
-	Storage struct {
-		Host     string `yaml:"host"`
-		Port     int    `yaml:"port"`
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		DbName   string `yaml:"db_name"`
-		SSLMode  string `yaml:"ssl_mode"`
-	} `yaml:"storage"`
+	Env       string        `yaml:"env" env-default:"local"`
+	Storage   Storage       `yaml:"storage"`
 	TockenTTL time.Duration `yaml:"token_ttl"`
 	GRPC      GRPCConfig    `yaml:"grpc"`
+}
+
+type Storage struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DbName   string `yaml:"db_name"`
+	SSLMode  string `yaml:"ssl_mode"`
 }
 
 type GRPCConfig struct {

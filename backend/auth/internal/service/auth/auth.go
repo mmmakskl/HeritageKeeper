@@ -14,42 +14,44 @@ import (
 )
 
 type Auth struct {
-	log      *slog.Logger
-	storage  Storage
-	tokenTTL time.Duration
+	log          *slog.Logger
+	userSaver    UserSaver
+	userProvider UserProvider
+	appProvider  AppProvider
+	tokenTTL     time.Duration
 }
 
 // usrSaver    UserSaver
 // usrProvider UserProvider
 // appProvider AppProvider
 
-type Storage interface {
-	SaveUser(
-		ctx context.Context,
-		email string,
-		passHash []byte,
-	) (uid int64, err error)
-	User(ctx context.Context, email string) (models.User, error)
-	IsAdmin(ctx context.Context, userID int64) (bool, error)
-	App(ctx context.Context, appID int) (models.App, error)
-}
-
-// type UserSaver interface {
+// type Storage interface {
 // 	SaveUser(
 // 		ctx context.Context,
 // 		email string,
 // 		passHash []byte,
 // 	) (uid int64, err error)
-// }
-
-// type UserProvider interface {
 // 	User(ctx context.Context, email string) (models.User, error)
 // 	IsAdmin(ctx context.Context, userID int64) (bool, error)
-// }
-
-// type AppProvider interface {
 // 	App(ctx context.Context, appID int) (models.App, error)
 // }
+
+type UserSaver interface {
+	SaveUser(
+		ctx context.Context,
+		email string,
+		passHash []byte,
+	) (uid int64, err error)
+}
+
+type UserProvider interface {
+	User(ctx context.Context, email string) (models.User, error)
+	IsAdmin(ctx context.Context, userID int64) (bool, error)
+}
+
+type AppProvider interface {
+	App(ctx context.Context, appID int) (models.App, error)
+}
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
@@ -60,13 +62,17 @@ var (
 
 func New(
 	log *slog.Logger,
-	storage Storage,
+	userSaver UserSaver,
+	userProvider UserProvider,
+	appProvider AppProvider,
 	tokenTTL time.Duration,
 ) *Auth {
 	return &Auth{
-		storage:  storage,
-		log:      log,
-		tokenTTL: tokenTTL,
+		userSaver:    userSaver,
+		userProvider: userProvider,
+		appProvider:  appProvider,
+		log:          log,
+		tokenTTL:     tokenTTL,
 	}
 }
 
@@ -85,7 +91,7 @@ func (a *Auth) Login(
 
 	log.Info("logging in user")
 
-	user, err := a.storage.User(ctx, email)
+	user, err := a.userProvider.User(ctx, email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			a.log.Warn("user not found", slog.String("err", err.Error()))
@@ -101,7 +107,7 @@ func (a *Auth) Login(
 		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
 
-	app, err := a.storage.App(ctx, appID)
+	app, err := a.appProvider.App(ctx, appID)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
@@ -136,7 +142,7 @@ func (a *Auth) RegisterNewUser(
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := a.storage.SaveUser(ctx, email, passHash)
+	id, err := a.userSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			log.Warn("user already exists", slog.String("err", err.Error()))
@@ -164,7 +170,7 @@ func (a *Auth) IsAdmin(
 
 	log.Info("checking if user is admin")
 
-	isAdmin, err := a.storage.IsAdmin(ctx, userID)
+	isAdmin, err := a.userProvider.IsAdmin(ctx, userID)
 	if err != nil {
 		if errors.Is(err, storage.ErrAppNotFound) {
 			log.Warn("app not found", slog.String("err", err.Error()))
