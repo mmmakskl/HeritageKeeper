@@ -1,0 +1,245 @@
+.login {
+    background-color: transparent;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.login .div {
+    background-image: url('./img/login.png');
+    background-size: cover;
+    background-position: 50% 50%;
+    width: 1440px;
+    height: 1024px;
+    position: relative;
+}
+
+.login .overlap-group {
+    position: absolute;
+    width: 500px;
+    height: 400px;
+    top: 312px;
+    left: 470px;
+    background-image: url('./img/rectangle-4.png');
+    background-size: cover;
+    background-position: 50% 50%;
+}
+
+.login .text-wrapper {
+    position: absolute;
+    top: 287px;
+    left: 194px;
+    font-family: "Inter-Medium", Helvetica;
+    font-weight: 500;
+    color: #ffffff99;
+    font-size: 14px;
+    letter-spacing: 0;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.login .frame {
+    display: flex;
+    width: 358px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    position: absolute;
+    top: 342px;
+    left: 71px;
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: #ffffff;
+}
+
+.login .text-wrapper-2 {
+    position: relative;
+    width: fit-content;
+    margin-top: -1.00px;
+    font-family: "Inter-Medium", Helvetica;
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.login .frame-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 358px;
+    height: 38px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 8px;
+    position: absolute;
+    top: 72px;
+    left: 71px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: #cbcbcb;
+}
+
+.login .label-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.login .label {
+    position: relative;
+    width: fit-content;
+    margin-top: -1.00px;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: #979797;
+    font-size: 16px;
+    letter-spacing: 0;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.login .div-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 358px;
+    height: 38px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 8px;
+    position: absolute;
+    top: 136px;
+    left: 71px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: #cbcbcb;
+}
+
+.login .text-wrapper-3 {
+    position: absolute;
+    top: 183px;
+    left: 94px;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: #cbcbcb;
+    font-size: 14px;
+    letter-spacing: 0;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.login .checkbox {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    top: 187px;
+    left: 72px;
+}
+
+.login .frame-2 {
+    display: flex;
+    width: 358px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    position: absolute;
+    top: 238px;
+    left: 71px;
+    background-color: #ffffff;
+    border-radius: 5px;
+}
+
+.login .text-wrapper-4 {
+    position: relative;
+    width: fit-content;
+    margin-top: -1.00px;
+    font-family: "Inter-Medium", Helvetica;
+    font-weight: 500;
+    color: #000000;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: 20px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login .text-wrapper-5 {
+    position: absolute;
+    width: 996px;
+    height: 60px;
+    top: 100px;
+    left: 222px;
+    font-family: "Prosto One-Regular", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 40px;
+    text-align: center;
+    letter-spacing: 0;
+    line-height: 60px;
+    white-space: nowrap;
+}
+
+.login .view {
+    position: absolute;
+    width: 284px;
+    height: 44px;
+    top: 14px;
+    left: 121px;
+}
+
+.login .text-wrapper-6 {
+    position: absolute;
+    width: 284px;
+    top: -1px;
+    left: 0;
+    font-family: "Inter-Italic", Helvetica;
+    font-weight: 400;
+    font-style: italic;
+    color: #ffffff;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url(./img/wallpaper.png); /* Укажите правильный путь к изображению */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Фон будет фиксированным при прокрутке */
+    min-height: 100vh;
+}
+body {
+    transition: opacity 0.3s;
+}
+.fade-out {
+    opacity: 0;
+}
+
+/* Эффекты при наведении */
+.login .text-wrapper-2:hover {
+    color: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.login .text-wrapper-4:hover {
+    background-color: #f0f0f0;
+}
+
+.login .text-wrapper-6:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
