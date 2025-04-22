@@ -3,7 +3,32 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Функция для перехода на страницу
+    // Добавьте в начало navigation.js
+function navigateToLoginWithParams(email = '', password = '') {
+    // Кодируем параметры для URL
+    const encodedEmail = encodeURIComponent(email);
+    const encodedPassword = encodeURIComponent(password);
+    
+    // Формируем URL с параметрами
+    const url = `log_in_index.html?email=${encodedEmail}&password=${encodedPassword}`;
+    
+    // Переходим с анимацией
+    document.body.classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 300);
+}
 
+// Обновите обработчик для кнопки входа на главной странице
+if (document.querySelector('.home')) {
+    const loginBtn = document.querySelector('.log-in');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            navigateToLoginWithParams(); // Без параметров по умолчанию
+        });
+    }
+}
     function navigateTo(page) {
         document.body.classList.add('fade-out');
         setTimeout(() => {
@@ -60,18 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (logo) {
             logo.addEventListener('click', function() {
                 navigateTo('home_page_index.html');
-            });
-        }
-
-        // Обработка кнопки "Войти"
-        const loginBtn = document.querySelector('.frame-2');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Здесь можно добавить логику входа
-                console.log('Попытка входа');
-                // После успешного входа:
-                // navigateTo('home_page_index.html');
             });
         }
     }

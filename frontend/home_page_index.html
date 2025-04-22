@@ -153,6 +153,18 @@
         <img class="logo" src="img/logo-3.png" />
       </div>
     </div>
+    <!-- В home_page_index.html добавьте где-нибудь -->
+<div class="test-login-btn" style="position: fixed; bottom: 20px; right: 20px; padding: 10px; background: #f00; color: white; cursor: pointer;">
+  Test Login Link
+</div>
+
+<script>
+document.querySelector('.test-login-btn').addEventListener('click', function() {
+  const email = "test@example.com";
+  const password = "test123";
+  window.location.href = `log_in_index.html?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+});
+</script>
     <div class="box"><div class="mask-group"></div></div>
     <script src="navigation.js"></script>
   </body>
