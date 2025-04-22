@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 
 	ssoGRPC "github.com/mmmakskl/HeritageKeeper/service/internal/clients/sso/grpc"
 	"github.com/mmmakskl/HeritageKeeper/service/internal/config"
@@ -53,17 +54,26 @@ func New(
 
 	authMiddleware := mw.JWTAuthMiddleware(secret)
 
+	//TODO: сделать это более красиво, разобраться
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://127.0.0.1:3000"}, // Укажите фронтенд
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
 	router.Use(middleware.Logger)
 	router.Use(mw.New(log))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
+	router.Use(c.Handler)
 
 	handlers := handler.NewHandlers(client, serv)
 
 	router.Route("/api", func(r chi.Router) {
-		r.Post("/auth", handlers.Register(log))
-		r.Get("/auth", handlers.Login(log))
+		r.Post("/register", handlers.Register(log))
+		r.Post("/login", handlers.Login(log))
 		r.Get("/users", handlers.Users(log))
 	})
 
