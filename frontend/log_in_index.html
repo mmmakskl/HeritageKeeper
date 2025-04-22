@@ -8,25 +8,27 @@
 <body>
     <div class="login">
         <div class="div">
-            <div class="overlap-group">
-                <div class="frame"><div class="text-wrapper-2">Создать аккаунт</div></div>
-                <div class="frame-wrapper">
-                    <div class="label-wrapper">
-                        <input type="email" class="input-field" placeholder="Введите ваш e-mail" required />
+            <form id="userLoginForm">  <!-- Добавлена форма с правильным ID -->
+                <div class="overlap-group">
+                    <div class="frame-wrapper">
+                        <div class="label-wrapper">
+                            <input type="email" class="input-field" placeholder="Введите ваш e-mail" required />
+                        </div>
                     </div>
-                </div>
-                <div class="div-wrapper">
-                    <div class="label-wrapper">
-                        <input type="password" class="input-field" placeholder="Введите пароль" required />
+                    <div class="div-wrapper">
+                        <div class="label-wrapper">
+                            <input type="password" class="input-field" placeholder="Введите пароль" required />
+                        </div>
                     </div>
+                    <div class="frame-2"><div class="text-wrapper-4">Войти</div></div>
+                    <div class="frame"><div class="text-wrapper-2">Создать аккаунт</div></div>
                 </div>
-                <div class="frame-2"><div class="text-wrapper-4">Войти</div></div>
-            </div>
+            </form>
             <div class="text-wrapper-5">Рады видеть Вас снова!</div>
             <div class="view"><div class="text-wrapper-6">КоллекционерЪ</div></div>
         </div>
     </div>
-    <script src="navigation.js"></script>
-    <script src="auth.js"></script>
+    <script src="auth.js"></script>  <!-- Подключаем только auth.js -->
+    <script src="navigation.js"></script> 
 </body>
 </html>

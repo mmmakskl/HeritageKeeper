@@ -243,3 +243,19 @@ body {
     color: #e0e0e0;
     transform: scale(1.02);
 }
+/* Добавьте в конец файла */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.input-field.error {
+    border-color: red !important;
+}
+
+.frame-wrapper.error,
+.div-wrapper.error {
+    border-color: red !important;
+}
