@@ -15,7 +15,7 @@ import (
 func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.ENV)
-	log.Info("Starting HeritageKeeper application", slog.Any("config", cfg))
+	log.Info("Starting HeritageKeeper application", slog.Any("grpc", cfg.Clients.SSO.Address), slog.Any("server", cfg.HTTPServer.Address), slog.Any("frontend", cfg.Frontend.Address))
 
 	application := app.New(log, cfg)
 

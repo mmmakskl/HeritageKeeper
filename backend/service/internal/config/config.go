@@ -13,6 +13,7 @@ type Config struct {
 	Storage    Storage       `yaml:"storage" env-required:"true"`
 	HTTPServer HTTPServer    `yaml:"http_server" env-required:"true"`
 	Clients    ClientsConfig `yaml:"clients" env-required:"true"`
+	Frontend   Frontend      `yaml:"frontend" env-required:"true"`
 	AppSecret  string        `yaml:"app_secret" env-required:"true" env:"APP_SECRET"`
 }
 
@@ -30,7 +31,7 @@ type Storage struct {
 }
 
 type HTTPServer struct {
-	Address     string        `yaml:"address" env-default:"0.0.0.0:8080"`
+	Address     string        `yaml:"address"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"5s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
@@ -41,7 +42,11 @@ type Client struct {
 	RetriesCount int           `yaml:"retries_count" env-default:"3"`
 }
 
-//TODO: errors
+type Frontend struct {
+	Address     string        `yaml:"address"`
+	Timeout     time.Duration `yaml:"timeout" env-default:"5s"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
 
 func MustLoad() *Config {
 	configPath := fetchConfigPath()
@@ -50,15 +55,14 @@ func MustLoad() *Config {
 	}
 
 	if _, err := os.Stat(configPath); err != nil {
-
-		panic(err)
+		panic("config file not found: " + configPath)
 	}
 
 	var cfg Config
 
 	err := cleanenv.ReadConfig(configPath, &cfg)
 	if err != nil {
-		panic(err)
+		panic("failed to load config: " + err.Error())
 	}
 
 	return &cfg

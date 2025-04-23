@@ -57,12 +57,21 @@ func New(
 
 func InterceptorLogger(l *slog.Logger) grpclog.Logger {
 	return grpclog.LoggerFunc(func(ctx context.Context, level grpclog.Level, msg string, fields ...any) {
+		filterFields := make([]any, 0, len(fields))
+		for i := 0; i < len(fields); i += 2 {
+			key := fields[i].(string)
+			if key == "grpc.request.content" || key == "grpc.response.content" {
+				continue
+			}
+			filterFields = append(filterFields, fields[i], fields[i+1])
+		}
+
 		if level == grpclog.LevelError {
 			l.ErrorContext(ctx, msg, fields...)
 		} else if level == grpclog.LevelInfo {
 			l.InfoContext(ctx, msg, fields...)
 		} else {
-			l.DebugContext(ctx, msg, fields...)
+			l.DebugContext(ctx, msg, filterFields...)
 		}
 	})
 }

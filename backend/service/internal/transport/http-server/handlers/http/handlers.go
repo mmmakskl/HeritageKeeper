@@ -21,7 +21,7 @@ import (
 
 type service interface {
 	Login(ctx context.Context, email string) error
-	Register(ctx context.Context, userID int64, email string) error
+	Register(ctx context.Context, userID int64, email string, username string) error
 	User(ctx context.Context, userID int64) (models.User, error)
 	Users() ([]models.User, error)
 	//TODO: UpdateUserInfo(ctx context.Context, userID int64, username string, fullName string, email string) error
@@ -33,6 +33,7 @@ type Request struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	AppID    int32  `json:"app_id,omitempty"`
+	Username string `json:"username,omitempty"`
 }
 
 type Response struct {
@@ -58,7 +59,6 @@ func NewHandlers(client *ssogrpc.Client, s service) *handler {
 	}
 }
 
-// TODO: Проверка email на валидность
 func (h *handler) Register(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.auth.Register"
@@ -78,8 +78,6 @@ func (h *handler) Register(log *slog.Logger) http.HandlerFunc {
 
 			return
 		}
-
-		log.Info("request body decoded", slog.Any("request", req))
 
 		if err := validator.New().Struct(req); err != nil {
 			log.Error("invalid request", slog.String("err", err.Error()))
@@ -111,7 +109,7 @@ func (h *handler) Register(log *slog.Logger) http.HandlerFunc {
 		}
 		log.Info("user registered", slog.Int64("user_id", userID))
 
-		err = h.service.Register(r.Context(), userID, req.Email)
+		err = h.service.Register(r.Context(), userID, req.Email, req.Username)
 		if err != nil {
 			log.Error("failed to register user in storage", slog.String("err", err.Error()))
 			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))
@@ -148,8 +146,6 @@ func (h *handler) Login(log *slog.Logger) http.HandlerFunc {
 
 			return
 		}
-
-		log.Info("request body decoded", slog.Any("request", req))
 
 		if err := validator.New().Struct(req); err != nil {
 			log.Error("invalid request", slog.String("err", err.Error()))

@@ -23,7 +23,7 @@ type ReadStorage interface {
 }
 
 type WriteStorage interface {
-	Register(ctx context.Context, userid int64, email string) error
+	Register(ctx context.Context, userid int64, email string, username string) error
 	UpdateUserInfo(
 		ctx context.Context,
 		userID int64,
@@ -48,10 +48,10 @@ func New(
 	}
 }
 
-func (s *Service) Register(ctx context.Context, user_id int64, email string) error {
+func (s *Service) Register(ctx context.Context, user_id int64, email string, username string) error {
 	s.log.Debug("Register user", slog.String("email", email))
 
-	return s.write_storage.Register(ctx, user_id, email)
+	return s.write_storage.Register(ctx, user_id, email, username)
 }
 
 func (s *Service) User(ctx context.Context, userID int64) (models.User, error) {

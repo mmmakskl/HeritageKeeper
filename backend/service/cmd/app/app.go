@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 
 	ssoGRPC "github.com/mmmakskl/HeritageKeeper/service/internal/clients/sso/grpc"
 	"github.com/mmmakskl/HeritageKeeper/service/internal/config"
@@ -54,20 +53,12 @@ func New(
 
 	authMiddleware := mw.JWTAuthMiddleware(secret)
 
-	//TODO: сделать это более красиво, разобраться
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://127.0.0.1:3000"}, // Укажите фронтенд
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	})
-
 	router.Use(middleware.Logger)
 	router.Use(mw.New(log))
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
-	router.Use(c.Handler)
+	router.Use(mw.CORSconfigure(cfg.Frontend.Address).Handler)
 
 	handlers := handler.NewHandlers(client, serv)
 
@@ -102,12 +93,8 @@ func (a *App) Run() error {
 	return a.server.ListenAndServe()
 }
 
-// TODO: если grpc выключен
+// TODO: если grpc выключен (под вопросом)
 func (a *App) Shutdown(ctx context.Context) error {
-	// if err := a.client; err != nil {
-	// 	a.log.Error("failed to close gRPC client", slog.String("error", err.Error()))
-	// }
-
 	if err := a.server.Shutdown(ctx); err != nil {
 		return err
 	}
