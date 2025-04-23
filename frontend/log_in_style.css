@@ -6,15 +6,6 @@
     width: 100%;
 }
 
-.login .div {
-    background-image: url('./img/login.png');
-    background-size: cover;
-    background-position: 50% 50%;
-    width: 1440px;
-    height: 1024px;
-    position: relative;
-}
-
 .login .overlap-group {
     position: absolute;
     width: 500px;
@@ -24,6 +15,7 @@
     background-image: url('./img/rectangle-4.png');
     background-size: cover;
     background-position: 50% 50%;
+    border-radius: 20px;
 }
 
 .login .text-wrapper {

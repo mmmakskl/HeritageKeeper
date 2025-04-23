@@ -6,15 +6,6 @@
     width: 100%;
 }
 
-.sign-up .div {
-    background-image: url(./img/sign-up.svg);
-    background-size: cover;
-    background-position: 50% 50%;
-    width: 1440px;
-    height: 1024px;
-    position: relative;
-}
-
 .sign-up .overlap-group {
     position: absolute;
     width: 996px;
@@ -80,6 +71,7 @@
     background-image: url(./img/rectangle-4.png);
     background-size: cover;
     background-position: 50% 50%;
+    border-radius: 20px;
 }
 
 .sign-up .div-2 {
@@ -296,3 +288,42 @@ body {
     background-color: #f0f0f0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+
+/* Стили для сообщений об ошибках */
+.error-message {
+    color: #ff3333;
+    font-size: 14px;
+    margin-top: 5px;
+    font-family: "Inter-Regular", Helvetica;
+}
+
+/* Анимация для сообщений об ошибках */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.error-message {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Улучшенные стили для полей ввода с ошибками */
+.input-field.error {
+    border-color: #ff3333 !important;
+}
+
+/* Стили для кнопки регистрации */
+.create-account-button {
+    transition: all 0.3s;
+}
+
+.create-account-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.create-account-button:active {
+    transform: translateY(0);
+}
+
+
