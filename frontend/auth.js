@@ -1,3 +1,5 @@
+const API_URL = 'http://localhost:8081/api';
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - auth.js started');
   initializeAuthSystem();
@@ -26,7 +28,7 @@ function initializeAuthSystem() {
 
 function setupLoginForm() {
   const loginForm = document.getElementById('loginForm') || document.querySelector('.login-form');
-  const loginBtn = document.querySelector('.frame-2 .text-wrapper-4') || 
+  const loginBtn = document.querySelector('.frame-2 .text-wrapper-4') ||
                    document.querySelector('.login-form .submit-btn');
 
   const handler = function(e) {
@@ -81,30 +83,30 @@ function validatePassword(password, inputElement) {
 
 function authenticateUser(email, password) {
   showLoader(true);
-  
-  fetch('https://localhost:8001/auth/login', {
+
+  fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, app_id: 1 })
   })
   .then(handleResponse)
   .then(data => {
       if (!data.token) {
           throw new Error('Не удалось получить токен');
       }
-      
+
       localStorage.setItem('userToken', data.token);
       localStorage.setItem('userEmail', email);
-      
+
       // Перенаправление после успешного входа
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
       window.location.href = redirectUrl || 'my_collections_index.html';
   })
   .catch(error => {
       console.error('Ошибка авторизации:', error);
-      showError(document.querySelector('input[type="email"]'), 
+      showError(document.querySelector('input[type="email"]'),
                error.message || 'Ошибка авторизации. Проверьте данные и попробуйте снова.');
   })
   .finally(() => showLoader(false));
@@ -151,8 +153,8 @@ function setupSignupForm() {
 
 function registerUser(email, password, username) {
   showLoader(true);
-  
-  fetch('https://localhost:8001/auth/register', {
+
+  fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -184,7 +186,7 @@ function registerUser(email, password, username) {
 
 function setupLogoutButton() {
   const logoutBtns = document.querySelectorAll('.logout-btn, #logoutBtn');
-  
+
   logoutBtns.forEach(btn => {
       btn.addEventListener('click', function(e) {
           e.preventDefault();
@@ -197,7 +199,7 @@ function logoutUser() {
   // Очищаем данные аутентификации
   localStorage.removeItem('userToken');
   localStorage.removeItem('userEmail');
-  
+
   // Перенаправляем на страницу входа
   window.location.href = 'login.html';
 }
@@ -206,7 +208,7 @@ function checkAuth(redirectUrl) {
   const protectedRoutes = ['my_collections_index.html', 'home_page_index.html'];
   const authPages = ['log_in_index.html', 'sign_up_index.html'];
   const currentPage = window.location.pathname.split('/').pop();
-  
+
   const token = localStorage.getItem('userToken');
   const isProtected = protectedRoutes.includes(currentPage);
   const isAuthPage = authPages.includes(currentPage);
@@ -215,12 +217,12 @@ function checkAuth(redirectUrl) {
       window.location.href = `login.html?redirect=${encodeURIComponent(redirectUrl || window.location.pathname)}`;
       return false;
   }
-  
+
   if (isAuthPage && token) {
       window.location.href = redirectUrl || 'my_collections_index.html';
       return true;
   }
-  
+
   return !!token;
 }
 
@@ -254,7 +256,7 @@ function showLoader(show = true) {
       loader.style.justifyContent = 'center';
       loader.style.alignItems = 'center';
       loader.style.zIndex = '1000';
-      
+
       const spinner = document.createElement('div');
       spinner.style.border = '4px solid #f3f3f3';
       spinner.style.borderTop = '4px solid #3498db';
@@ -262,10 +264,10 @@ function showLoader(show = true) {
       spinner.style.width = '40px';
       spinner.style.height = '40px';
       spinner.style.animation = 'spin 1s linear infinite';
-      
+
       loader.appendChild(spinner);
       document.body.appendChild(loader);
-      
+
       // Добавляем анимацию в CSS
       const style = document.createElement('style');
       style.textContent = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
@@ -315,9 +317,9 @@ function showSuccess(message, container = document.body) {
   successElement.style.backgroundColor = '#e8f5e9';
   successElement.style.textAlign = 'center';
   successElement.textContent = message;
-  
+
   container.prepend(successElement);
-  
+
   setTimeout(() => {
       successElement.style.transition = 'opacity 0.5s';
       successElement.style.opacity = '0';
