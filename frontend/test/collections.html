@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protected</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <button id="logoutButton">Выйти</button>
+  </header>
+  <main>
+    <h2>Добро пожаловать!</h2>
+    <p>Ваш JWT токен:</p>
+    <pre id="tokenDisplay"></pre>
+  </main>
+
+  <script type="module" src="auth.js"></script>
+  <script type="module">
+    import { isLoggedIn } from './auth.js';
+    if (!isLoggedIn()) {
+      alert('Сначала войдите!');
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('tokenDisplay').textContent = localStorage.getItem('jwt_token');
+    }
+  </script>
+</body>
+</html>
