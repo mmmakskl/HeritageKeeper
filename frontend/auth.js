@@ -1,281 +1,326 @@
-<<<<<<< HEAD
-// auth.js
-// Центральный модуль авторизации и регистрации
-
-const API_URL = 'http://localhost:8081'; // Локальный хост и порт
-const TOKEN_KEY = 'jwt_token';
-
-/**
- * Выполняет вход пользователя
- * @param {string} username
- * @param {string} password
- */
-async function login(username, password) {
-  console.log('[Auth] login вызван с:', username, password);
-  try {
-    console.log('[Auth] Отправка запроса на:', `${API_URL}/login`);
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-
-    console.log('[Auth] Код ответа:', response.status);
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || 'Ошибка входа. Проверьте логин и пароль.');
-    }
-
-    const data = await response.json();
-    console.log('[Auth] Ответ сервера:', data);
-
-    localStorage.setItem(TOKEN_KEY, data.token);
-    alert('Успешный вход!');
-    window.location.href = '/collections.html';
-
-  } catch (error) {
-    console.error('[Auth] Ошибка при входе:', error);
-    alert(error.message);
-  }
-}
-
-/**
- * Выполняет регистрацию пользователя
- * @param {string} username
- * @param {string} password
- */
-async function register(username, password) {
-  console.log('[Auth] register вызван с:', username, password);
-  try {
-    console.log('[Auth] Отправка запроса на:', `${API_URL}/register`);
-    const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-
-    console.log('[Auth] Код ответа регистрации:', response.status);
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || 'Ошибка регистрации.');
-    }
-
-    const data = await response.json();
-    console.log('[Auth] Регистрация успешна:', data);
-
-    alert('Регистрация прошла успешно! Выполняем вход...');
-    await login(username, password);
-
-  } catch (error) {
-    console.error('[Auth] Ошибка при регистрации:', error);
-    alert(error.message);
-  }
-}
-
-/**
- * Выход пользователя
- */
-function logout() {
-  console.log('[Auth] logout вызван');
-  localStorage.removeItem(TOKEN_KEY);
-  alert('Вы вышли из системы.');
-  window.location.href = '/login.html';
-}
-
-/**
- * Проверка авторизации
- */
-function isLoggedIn() {
-  return Boolean(localStorage.getItem(TOKEN_KEY));
-}
-
-// Привязка обработчиков при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-  // Форма логина
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const username = loginForm.username.value.trim();
-      const password = loginForm.password.value.trim();
-      login(username, password);
-    });
-  }
-
-  // Если на странице есть кнопка "Войти" вне формы
-  const loginBtn = document.getElementById('loginBtn');
-  if (loginBtn) {
-    loginBtn.addEventListener('click', e => {
-      e.preventDefault();
-      const uname = document.querySelector('#loginForm input[name=username]')?.value.trim();
-      const pwd   = document.querySelector('#loginForm input[name=password]')?.value.trim();
-      console.log('[Auth] Клик по кнопке войти');
-      if (uname && pwd) {
-        login(uname, pwd);
-      } else {
-        alert('Введите логин и пароль!');
-      }
-    });
-  }
-
-  // Форма регистрации
-  const registerForm = document.getElementById('registerForm');
-  if (registerForm) {
-    registerForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const username = registerForm.username.value.trim();
-      const password = registerForm.password.value.trim();
-      register(username, password);
-    });
-  }
-
-  const logoutBtn = document.getElementById('logoutButton');
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
-
-  // Авто-редирект в зависимости от статуса
-  if (isLoggedIn()) {
-    console.log('[Auth] Пользователь авторизован');
-    // Можно загрузить профиль или защитить маршруты
-  } else {
-    console.log('[Auth] Пользователь не авторизован');
-    // Если нужно принудительно редиректить
-    // if (!window.location.pathname.includes('login')) window.location.href = '/login.html';
-  }
-});
-
-// Экспорт функций (ESM или подключение через <script type="module">)
-export { login, register, logout, isLoggedIn };
-=======
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded - auth.js started');
-    initializeAuthSystem();
+  console.log('DOM loaded - auth.js started');
+  initializeAuthSystem();
 });
 
 function initializeAuthSystem() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
-    const password = urlParams.get('password');
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get('email');
+  const password = urlParams.get('password');
+  const redirect = urlParams.get('redirect');
 
-    if (email && document.querySelector('.input-field[type="email"]')) {
-        document.querySelector('.input-field[type="email"]').value = decodeURIComponent(email);
-    }
+  // Автозаполнение полей из URL
+  if (email && document.querySelector('.input-field[type="email"]')) {
+      document.querySelector('.input-field[type="email"]').value = decodeURIComponent(email);
+  }
 
-    if (password && document.querySelector('.input-field[type="password"]')) {
-        document.querySelector('.input-field[type="password"]').value = decodeURIComponent(password);
-    }
+  if (password && document.querySelector('.input-field[type="password"]')) {
+      document.querySelector('.input-field[type="password"]').value = decodeURIComponent(password);
+  }
 
-    setupLoginForm();
-    setupSignupForm();
-    setupLogoutButton();
-    checkAuth();
+  setupLoginForm();
+  setupSignupForm();
+  setupLogoutButton();
+  checkAuth(redirect);
 }
 
 function setupLoginForm() {
-    const loginBtn = document.querySelector('.frame-2 .text-wrapper-4'); // Кнопка "Войти"
+  const loginForm = document.getElementById('loginForm') || document.querySelector('.login-form');
+  const loginBtn = document.querySelector('.frame-2 .text-wrapper-4') || 
+                   document.querySelector('.login-form .submit-btn');
 
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+  const handler = function(e) {
+      e.preventDefault();
 
-            const emailInput = document.querySelector('.frame-wrapper .input-field[type="email"]');
-            const passwordInput = document.querySelector('.div-wrapper .input-field[type="password"]');
+      const form = e.target.closest('form');
+      const emailInput = form.querySelector('input[type="email"]');
+      const passwordInput = form.querySelector('input[type="password"]');
 
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
 
-            // Валидация полей
-            if (!email) {
-                showError(emailInput, 'Введите email');
-                return;
-            }
+      // Валидация полей
+      if (!validateEmail(email, emailInput)) return;
+      if (!validatePassword(password, passwordInput)) return;
 
-            if (!isValidEmail(email)) {
-                showError(emailInput, 'Некорректный email');
-                return;
-            }
+      console.log('Login attempt with valid data:', { email });
+      authenticateUser(email, password);
+  };
 
-            if (!password) {
-                showError(passwordInput, 'Введите пароль');
-                return;
-            }
+  if (loginForm) {
+      loginForm.addEventListener('submit', handler);
+  }
+  if (loginBtn && !loginForm) {
+      loginBtn.addEventListener('click', handler);
+  }
+}
 
-            if (password.length < 6) {
-                showError(passwordInput, 'Пароль слишком короткий (мин. 6 символов)');
-                return;
-            }
+function validateEmail(email, inputElement) {
+  if (!email) {
+      showError(inputElement, 'Введите email');
+      return false;
+  }
+  if (!isValidEmail(email)) {
+      showError(inputElement, 'Некорректный email');
+      return false;
+  }
+  return true;
+}
 
-            // Если валидация пройдена
-            console.log('Login attempt with valid data:', { email });
-
-            // Отправка данных на сервер
-            authenticateUser(email, password);
-        });
-    }
+function validatePassword(password, inputElement) {
+  if (!password) {
+      showError(inputElement, 'Введите пароль');
+      return false;
+  }
+  if (password.length < 6) {
+      showError(inputElement, 'Пароль слишком короткий (мин. 6 символов)');
+      return false;
+  }
+  return true;
 }
 
 function authenticateUser(email, password) {
-    fetch('https://localhost:8000', { // Замените на ваш URL
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка авторизации');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Предполагаем, что сервер возвращает токен в поле token
-        const token = data.token;
-
-        if (token) {
-            localStorage.setItem('userToken', token);
-            localStorage.setItem('userEmail', email);
-            // Перенаправляем на страницу коллекций
-            window.location.href = 'my_collections_index.html';
-        } else {
-            showError(document.querySelector('.frame-wrapper .input-field[type="email"]'), 'Не удалось получить токен');
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        showError(document.querySelector('.frame-wrapper .input-field[type="email"]'), 'Ошибка авторизации: ' + error.message);
-    });
+  showLoader(true);
+  
+  fetch('https://localhost:8001/auth/login', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+  })
+  .then(handleResponse)
+  .then(data => {
+      if (!data.token) {
+          throw new Error('Не удалось получить токен');
+      }
+      
+      localStorage.setItem('userToken', data.token);
+      localStorage.setItem('userEmail', email);
+      
+      // Перенаправление после успешного входа
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+      window.location.href = redirectUrl || 'my_collections_index.html';
+  })
+  .catch(error => {
+      console.error('Ошибка авторизации:', error);
+      showError(document.querySelector('input[type="email"]'), 
+               error.message || 'Ошибка авторизации. Проверьте данные и попробуйте снова.');
+  })
+  .finally(() => showLoader(false));
 }
 
-// Вспомогательные функции валидации
+function setupSignupForm() {
+  const signupForm = document.querySelector('.div-2'); // Контейнер с полями формы
+  const signupBtn = document.querySelector('.create-account-button');
+
+  const handler = function(e) {
+      e.preventDefault();
+
+      const form = e.target.closest('.div-2') || document.querySelector('.div-2');
+      const emailInput = form.querySelector('input[type="email"]');
+      const passwordInput = form.querySelector('input[type="password"]');
+      const confirmInput = form.querySelectorAll('input[type="password"]')[1];
+      const usernameInput = form.querySelector('input[type="text"]');
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      const confirmPassword = confirmInput.value.trim();
+      const username = usernameInput.value.trim();
+
+      // Валидация полей
+      if (!username) {
+          showError(usernameInput, 'Введите имя пользователя');
+          return;
+      }
+      if (!validateEmail(email, emailInput)) return;
+      if (!validatePassword(password, passwordInput)) return;
+      if (password !== confirmPassword) {
+          showError(confirmInput, 'Пароли не совпадают');
+          return;
+      }
+
+      console.log('Signup attempt with valid data:', { email, username });
+      registerUser(email, password, username);
+  };
+
+  if (signupBtn) {
+      signupBtn.addEventListener('click', handler);
+  }
+}
+
+function registerUser(email, password, username) {
+  showLoader(true);
+  
+  fetch('https://localhost:8001/auth/register', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password, username })
+  })
+  .then(response => {
+      if (!response.ok) {
+          return response.json().then(err => {
+              throw new Error(err.message || `Ошибка регистрации (статус: ${response.status})`);
+          });
+      }
+      return response.json();
+  })
+  .then(data => {
+      if (data.error) {
+          throw new Error(data.error);
+      }
+      showSuccess('Регистрация успешна! Выполняется вход...');
+      authenticateUser(email, password);
+  })
+  .catch(error => {
+      console.error('Ошибка регистрации:', error);
+      const emailInput = document.querySelector('input[type="email"]');
+      showError(emailInput, error.message || 'Ошибка регистрации. Попробуйте другой email.', false);
+  })
+  .finally(() => showLoader(false));
+}
+
+function setupLogoutButton() {
+  const logoutBtns = document.querySelectorAll('.logout-btn, #logoutBtn');
+  
+  logoutBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logoutUser();
+      });
+  });
+}
+
+function logoutUser() {
+  // Очищаем данные аутентификации
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('userEmail');
+  
+  // Перенаправляем на страницу входа
+  window.location.href = 'login.html';
+}
+
+function checkAuth(redirectUrl) {
+  const protectedRoutes = ['my_collections_index.html', 'home_page_index.html'];
+  const authPages = ['log_in_index.html', 'sign_up_index.html'];
+  const currentPage = window.location.pathname.split('/').pop();
+  
+  const token = localStorage.getItem('userToken');
+  const isProtected = protectedRoutes.includes(currentPage);
+  const isAuthPage = authPages.includes(currentPage);
+
+  if (isProtected && !token) {
+      window.location.href = `login.html?redirect=${encodeURIComponent(redirectUrl || window.location.pathname)}`;
+      return false;
+  }
+  
+  if (isAuthPage && token) {
+      window.location.href = redirectUrl || 'my_collections_index.html';
+      return true;
+  }
+  
+  return !!token;
+}
+
+// Вспомогательные функции
 function isValidEmail(email) {
-    const re = /^[^s@]+@[^s@]+.[^s@]+$/;
-    return re.test(email);
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
 }
 
-function showError(inputElement, message) {
-    let errorElement = inputElement.nextElementSibling;
-    if (!errorElement || !errorElement.classList.contains('error-message')) {
-        errorElement = document.createElement('div');
-        errorElement.className = 'error-message';
-        inputElement.parentNode.insertBefore(errorElement, inputElement.nextSibling);
-    }
-
-    errorElement.style.color = 'red';
-    errorElement.style.fontSize = '12px';
-    errorElement.style.marginTop = '5px';
-    errorElement.textContent = message;
-
-    inputElement.style.borderColor = 'red';
-
-    inputElement.addEventListener('input', function() {
-        errorElement.textContent = '';
-        inputElement.style.borderColor = '';
-    });
+function handleResponse(response) {
+  if (!response.ok) {
+      return response.json().then(err => {
+          throw new Error(err.message || `Ошибка сервера: ${response.status}`);
+      });
+  }
+  return response.json();
 }
 
-<<<<<<< HEAD
-// Остальные функции (setupSignupForm, setupLogoutButton, checkAuth) остаются без изменений
-=======
-// Остальные функции (setupSignupForm, setupLogoutButton, checkAuth) остаются без изменений
->>>>>>> 00a4351860d3bcfadd08018caf823078faee5516
->>>>>>> 2d2f18a5187b0a0cd4e2eb0235962e79b497dead
+function showLoader(show = true) {
+  let loader = document.getElementById('globalLoader');
+  if (!loader && show) {
+      loader = document.createElement('div');
+      loader.id = 'globalLoader';
+      loader.style.position = 'fixed';
+      loader.style.top = '0';
+      loader.style.left = '0';
+      loader.style.width = '100%';
+      loader.style.height = '100%';
+      loader.style.backgroundColor = 'rgba(0,0,0,0.5)';
+      loader.style.display = 'flex';
+      loader.style.justifyContent = 'center';
+      loader.style.alignItems = 'center';
+      loader.style.zIndex = '1000';
+      
+      const spinner = document.createElement('div');
+      spinner.style.border = '4px solid #f3f3f3';
+      spinner.style.borderTop = '4px solid #3498db';
+      spinner.style.borderRadius = '50%';
+      spinner.style.width = '40px';
+      spinner.style.height = '40px';
+      spinner.style.animation = 'spin 1s linear infinite';
+      
+      loader.appendChild(spinner);
+      document.body.appendChild(loader);
+      
+      // Добавляем анимацию в CSS
+      const style = document.createElement('style');
+      style.textContent = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+      document.head.appendChild(style);
+  } else if (loader && !show) {
+      loader.remove();
+  }
+}
+
+function showError(inputElement, message, isTemporary = true) {
+  // Очищаем предыдущие ошибки
+  const existingError = inputElement.nextElementSibling;
+  if (existingError && existingError.classList.contains('error-message')) {
+      existingError.remove();
+  }
+
+  const errorElement = document.createElement('div');
+  errorElement.className = 'error-message';
+  errorElement.style.color = '#ff4444';
+  errorElement.style.fontSize = '12px';
+  errorElement.style.marginTop = '5px';
+  errorElement.textContent = message;
+
+  inputElement.parentNode.insertBefore(errorElement, inputElement.nextSibling);
+  inputElement.style.borderColor = '#ff4444';
+
+  if (isTemporary) {
+      const clearError = () => {
+          errorElement.remove();
+          inputElement.style.borderColor = '';
+          inputElement.removeEventListener('input', clearError);
+      };
+      inputElement.addEventListener('input', clearError);
+  }
+}
+
+function showSuccess(message, container = document.body) {
+  const existingSuccess = container.querySelector('.success-message');
+  if (existingSuccess) existingSuccess.remove();
+
+  const successElement = document.createElement('div');
+  successElement.className = 'success-message';
+  successElement.style.color = '#00C851';
+  successElement.style.padding = '10px';
+  successElement.style.margin = '10px 0';
+  successElement.style.borderRadius = '4px';
+  successElement.style.backgroundColor = '#e8f5e9';
+  successElement.style.textAlign = 'center';
+  successElement.textContent = message;
+  
+  container.prepend(successElement);
+  
+  setTimeout(() => {
+      successElement.style.transition = 'opacity 0.5s';
+      successElement.style.opacity = '0';
+      setTimeout(() => successElement.remove(), 500);
+  }, 3000);
+}

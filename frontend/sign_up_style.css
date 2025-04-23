@@ -326,4 +326,21 @@ body {
     transform: translateY(0);
 }
 
+.input-field {
+    transition: border-color 0.3s;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Inter-Regular', Helvetica;
+    font-size: 16px;
+}
 
+.input-field:focus {
+    outline: none;
+    border-color: #666;
+}
+
+.input-field.error {
+    border-color: #ff4444;
+}
