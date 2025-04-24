@@ -63,14 +63,24 @@ func New(
 	handlers := handler.NewHandlers(client, serv)
 
 	router.Route("/api", func(r chi.Router) {
-		r.Post("/register", handlers.Register(log))
-		r.Post("/login", handlers.Login(log))
-		r.Get("/users", handlers.Users(log))
+		r.Post("/auth/register", handlers.Register(log))
+		r.Post("/auth/login", handlers.Login(log))
+		r.Get("/keeper/users", handlers.Users(log))
 	})
 
 	router.Group(func(r chi.Router) {
 		r.Use(authMiddleware)
-		r.Get("/api/profile", handlers.Profile(log))
+		r.Get("/api/keeper/profile", handlers.Profile(log))
+		r.Put("/api/keeper/user", handlers.UpdateUserInfo(log))
+		r.Post("/api/keeper/collection", handlers.CreateCollection(log))
+		// r.Get("/api/keeper/collection", handlers.GetCollection(log))
+		// r.Put("/api/keeper/collection", handlers.UpdateCollection(log))
+		// r.Delete("/api/keeper/collection", handlers.DeleteCollection(log))
+		// r.Get("/api/keeper/collection/{id}", handlers.GetCollection(log))
+		// r.Post("/api/keeper/collection/{id}/lot", handlers.CreateLot(log))
+		// r.Put("/api/keeper/collection/{id}/lot", handlers.UpdateLot(log))
+		// r.Delete("/api/keeper/collection/{id}/lot", handlers.DeleteLot(log))
+		// r.Get("/api/keeper/collection/{id}/lot", handlers.GetLot(log))
 	})
 
 	srv := &http.Server{

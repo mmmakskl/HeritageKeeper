@@ -1,6 +1,10 @@
-DROP TABLE IF EXISTS keeper.users_info;
-DROP TABLE IF EXISTS keeper.collections;
-DROP TABLE IF EXISTS keeper.items;
-DROP TABLE IF EXISTS keeper.images;
-DROP TABLE IF EXISTS keeper.item_tags;
-DROP TABLE IF EXISTS keeper.tags;
+DROP FUNCTION IF EXISTS keeper.update_updated_at_column() CASCADE;
+
+DROP TABLE IF EXISTS keeper.collection_images CASCADE;
+DROP TABLE IF EXISTS keeper.item_tags CASCADE;
+DROP TABLE IF EXISTS keeper.tags CASCADE;
+DROP TABLE IF EXISTS keeper.images CASCADE;
+DROP TABLE IF EXISTS keeper.items CASCADE;
+DROP TABLE IF EXISTS keeper.collections CASCADE;
+DROP TABLE IF EXISTS keeper.users_info CASCADE;
+DROP TABLE IF EXISTS keeper.categories CASCADE;

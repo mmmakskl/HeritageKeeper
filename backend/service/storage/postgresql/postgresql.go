@@ -47,13 +47,13 @@ func New(cfg DBstruct) (*Storage, error) {
 func (s *Storage) Register(ctx context.Context, userid int64, email string, username string) error {
 	const op = "postgresql.Register"
 
-	stmt, err := s.db.Prepare("INSERT INTO keeper.users_info (email, username, user_id, full_name) VALUES ($1, $2, $3, $4);")
+	stmt, err := s.db.Prepare("INSERT INTO keeper.users_info (email, username, user_id) VALUES ($1, $2, $3);")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(email, username, userid, "")
+	_, err = stmt.Exec(email, username, userid)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -61,22 +61,24 @@ func (s *Storage) Register(ctx context.Context, userid int64, email string, user
 	return nil
 }
 
+// TODO: Если данные уже есть, заменить
 func (s *Storage) UpdateUserInfo(
 	ctx context.Context,
 	userID int64,
 	username string,
-	full_name string,
 	email string,
+	phone string,
+	birth_date time.Time,
 ) error {
 	const op = "postgresql.UpdateUserInfo"
 
-	stmt, err := s.db.Prepare("UPDATE keeper.users_info SET username = $1, full_name = $2 WHERE email = $3")
+	stmt, err := s.db.Prepare("UPDATE keeper.users_info SET username = $1, email = $2, phone = $3, birth_date = $4 WHERE user_id = $5")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(username, full_name, email)
+	_, err = stmt.Exec(username, email, phone, birth_date, userID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -105,14 +107,14 @@ func (s *Storage) Login(ctx context.Context, email string) error {
 func (s *Storage) User(ctx context.Context, userID int64) (models.User, error) {
 	const op = "postgresql.User"
 
-	stmt, err := s.db.Prepare("SELECT user_id, username, full_name, email FROM keeper.users_info WHERE user_id = $1")
+	stmt, err := s.db.Prepare("SELECT user_id, username, email, phone, birth_date FROM keeper.users_info WHERE user_id = $1")
 	if err != nil {
 		return models.User{}, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
 	var user models.User
-	err = stmt.QueryRow(userID).Scan(&user.UserID, &user.Username, &user.FullName, &user.Email)
+	err = stmt.QueryRow(userID).Scan(&user.UserID, &user.Username, &user.Email, &user.Phone, &user.Birth_date)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.User{}, fmt.Errorf("%s: %w", op, err)
@@ -125,7 +127,7 @@ func (s *Storage) User(ctx context.Context, userID int64) (models.User, error) {
 func (s *Storage) Users() ([]models.User, error) {
 	const op = "postgresql.Users"
 
-	rows, err := s.db.Query("SELECT user_id, username, full_name, email FROM keeper.users_info")
+	rows, err := s.db.Query("SELECT user_id, username, email FROM keeper.users_info")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -134,7 +136,7 @@ func (s *Storage) Users() ([]models.User, error) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		if err := rows.Scan(&user.UserID, &user.Username, &user.FullName, &user.Email); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Username, &user.Email); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 		users = append(users, user)
@@ -145,4 +147,28 @@ func (s *Storage) Users() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (s *Storage) SetCollection(
+	ctx context.Context,
+	userID int64,
+	collectionName string,
+	description string,
+	categoryID int64,
+	isPublic bool,
+) error {
+	const op = "postgresql.SetCollection"
+
+	stmt, err := s.db.Prepare("INSERT INTO keeper.collections (user_id, name, description, category_id, is_public) VALUES ($1, $2, $3, $4, $5)")
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userID, collectionName, description, categoryID, isPublic)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }

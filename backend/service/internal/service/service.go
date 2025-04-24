@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"github.com/mmmakskl/HeritageKeeper/service/domain/models"
 	ssogrpc "github.com/mmmakskl/HeritageKeeper/service/internal/clients/sso/grpc"
@@ -28,10 +29,19 @@ type WriteStorage interface {
 		ctx context.Context,
 		userID int64,
 		username string,
-		full_name string,
 		email string,
+		phone string,
+		birth_date time.Time,
 	) error
 	Login(ctx context.Context, email string) error
+	SetCollection(
+		ctx context.Context,
+		userID int64,
+		collectionName string,
+		description string,
+		categoryID int64,
+		isPublic bool,
+	) error
 }
 
 func New(
@@ -80,4 +90,30 @@ func (s *Service) Users() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (s *Service) UpdateUserInfo(
+	ctx context.Context,
+	userID int64,
+	username string,
+	email string,
+	phone string,
+	birth_date time.Time,
+) error {
+	s.log.Debug("Update user info", slog.String("user_id", strconv.Itoa(int(userID))))
+
+	return s.write_storage.UpdateUserInfo(ctx, userID, username, email, phone, birth_date)
+}
+
+func (s *Service) SetCollection(
+	ctx context.Context,
+	userID int64,
+	collectionName string,
+	description string,
+	categoryID int64,
+	isPublic bool,
+) error {
+	s.log.Debug("Set collection", slog.String("user_id", strconv.Itoa(int(userID))))
+
+	return s.write_storage.SetCollection(ctx, userID, collectionName, description, categoryID, isPublic)
 }
