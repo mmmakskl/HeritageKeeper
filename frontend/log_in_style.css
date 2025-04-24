@@ -9,7 +9,7 @@
 .login .overlap-group {
     position: absolute;
     width: 500px;
-    height: 400px;
+    height: 360px;
     top: 312px;
     left: 470px;
     background-image: url('./img/rectangle-4.png');
@@ -39,11 +39,18 @@
     gap: 10px;
     padding: 10px;
     position: absolute;
-    top: 342px;
+    top: 250px;
     left: 71px;
     border-radius: 5px;
     border: 1px solid;
     border-color: #ffffff;
+    transition: all 0.3s;
+
+}
+
+.login .text-wrapper-4:hover {
+    color: #000;
+    transform: scale(1.05);
 }
 
 .login .text-wrapper-2 {
@@ -57,7 +64,9 @@
     letter-spacing: 0;
     line-height: 20px;
     white-space: nowrap;
+    transition: all 0.3s;
 }
+
 
 .login .frame-wrapper {
     display: flex;
@@ -83,6 +92,9 @@
     gap: 10px;
     position: relative;
     flex: 0 0 auto;
+    height: 38px;
+    width: 358px;
+
 }
 
 .login .label {
@@ -144,10 +156,11 @@
     gap: 10px;
     padding: 10px;
     position: absolute;
-    top: 238px;
+    top: 200px;
     left: 71px;
     background-color: #ffffff;
     border-radius: 5px;
+    transition: all 0.3s;
 }
 
 .login .text-wrapper-4 {
@@ -245,6 +258,101 @@ body {
 
 .input-field.error {
     border-color: red !important;
+}
+
+.login .input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Inter-Regular', Helvetica;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.login .input-field:focus {
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.login .input-field::placeholder {
+    color: #979797;
+    opacity: 1;
+}
+
+/* Стили для контейнеров полей ввода */
+.login .frame-wrapper,
+.login .div-wrapper {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+/* Стили для кнопки входа */
+.login .frame-2 {
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.login .frame-2:hover {
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.login .frame-2:active {
+    background-color: #e0e0e0;
+}
+
+/* Стили для кнопки "Создать аккаунт" */
+.login .frame {
+    background-color: transparent;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.login .frame:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Анимация при наведении на логотип */
+.login .text-wrapper-6:hover {
+    transform: scale(1.02);
+    color: #e0e0e0;
+}
+
+/* Стили для сообщений об ошибках */
+.login .error-message {
+    color: #ff3333;
+    font-size: 14px;
+    margin-top: 5px;
+    font-family: "Inter-Regular", Helvetica;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Анимация появления сообщений об ошибках */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Стили для полей с ошибками */
+.login .input-field.error {
+    border-color: #ff3333;
+}
+
+.login .frame-wrapper.error,
+.login .div-wrapper.error {
+    border-color: #ff3333 !important;
 }
 
 .frame-wrapper.error,

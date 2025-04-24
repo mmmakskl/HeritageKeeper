@@ -20,7 +20,7 @@
     height: 1026px;
     top: 0;
     left: 0;
-    background-color: #3c3535;
+    background-color: #59120F;
   }
   
   .my-collections .codicon-account {
@@ -41,6 +41,8 @@
     position: absolute;
     top: 14px;
     left: 70px;
+    cursor: default;
+
   }
   
   .my-collections .view {
@@ -75,7 +77,13 @@
     white-space: nowrap;
     letter-spacing: 0;
     line-height: normal;
+    cursor: pointer;
+    transition: all 0.3s;
   }
+  .my-collections .text-wrapper-2:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
   
   .my-collections .user-name {
     position: absolute;
@@ -91,7 +99,14 @@
     height: 30px;
     top: 0;
     left: 228px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
+
+  .my-collections .iconamoon-edit:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
   
   .my-collections .text-wrapper-3 {
     position: absolute;
@@ -103,6 +118,7 @@
     font-size: 24px;
     letter-spacing: 0;
     line-height: normal;
+    cursor: default;
   }
   
   .my-collections .tabs {
@@ -137,7 +153,14 @@
     font-size: 18px;
     letter-spacing: 0;
     line-height: normal;
+    cursor: pointer;
+    transition: all 0.3s;
   }
+
+  .my-collections .text-wrapper-4:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
   
   .my-collections .text-wrapper-5 {
     position: relative;
@@ -150,7 +173,14 @@
     font-size: 18px;
     letter-spacing: 0;
     line-height: normal;
+    cursor: pointer;
+    transition: all 0.3s;
   }
+
+  .my-collections .text-wrapper-5:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
   
   .my-collections .tabs-2 {
     top: 851px;
@@ -192,7 +222,12 @@
     width: 260px;
     height: 228px;
     background-color: #ffffff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
+
+  
   
   .my-collections .mask-group {
     position: absolute;
@@ -200,6 +235,7 @@
     height: 144px;
     top: 22px;
     left: 24px;
+    border-radius: 20px;
   }
   
   .my-collections .text-wrapper-6 {
@@ -254,6 +290,9 @@
     background-color: #ffffff;
     border: 1px solid;
     border-color: #00000066;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
   
   .my-collections .lets-icons-add {
@@ -295,6 +334,8 @@
     background-color: #ffffff;
     border: 1px solid;
     border-color: #00000066;
+    border-radius: 10px;
+    cursor: pointer;
   }
   
   .my-collections .text-wrapper-9 {
@@ -323,6 +364,7 @@
     white-space: nowrap;
     letter-spacing: 0;
     line-height: normal;
+    cursor: pointer;
   }
   
   .my-collections .mdi-sort {
@@ -332,3 +374,13 @@
     top: 128px;
     left: 596px;
   }
+
+  .my-collections .collection-preview:hover {
+    color: #e0e0e0;
+    transform: scale(1.02);
+}
+
+.my-collections .add-collection:hover {
+  color: #e0e0e0;
+  transform: scale(1.02);
+}
