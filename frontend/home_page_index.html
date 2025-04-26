@@ -14,11 +14,11 @@
             <div class="div">        </div>
             <div class="div">        </div>
           </div>
-          <div class="add-account">
+          <div class="add-account" id="registerBtn">
             <div class="account-circle-add"><img class="img" src="img/account-circle-add-fill.png" /></div>
             <div class="text-wrapper-2">Зарегистрироваться</div>
         </div>
-          <div class="log-in">
+          <div class="log-in" id="loginBtn">
             <div class="login-streamline"><img class="img" src="img/login.png" /></div>
             <div class="text-wrapper-3">Войти</div>
         </div>
@@ -155,5 +155,21 @@
     </div>
     <div class="box"><div class="mask-group"></div></div>
     <script src="navigation.js"></script>
+    <script>
+      // Добавляем обработчики для кнопок на главной странице
+      document.addEventListener('DOMContentLoaded', function() {
+        // Кнопка "Зарегистрироваться"
+        document.getElementById('registerBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'sign_up_index.html';
+        });
+
+        // Кнопка "Войти"
+        document.getElementById('loginBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'log_in_index.html';
+        });
+      });
+    </script>
   </body>
 </html>

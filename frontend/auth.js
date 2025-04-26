@@ -326,3 +326,32 @@ function showSuccess(message, container = document.body) {
       setTimeout(() => successElement.remove(), 500);
   }, 3000);
 }
+
+// Добавляем проверку авторизации при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const protectedPages = [
+        'my_collections_index.html',
+        'in_collection_index.html',
+        'my_account_index.html'
+    ];
+    
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    if (protectedPages.includes(currentPage)) {
+        const token = localStorage.getItem('userToken');
+        if (!token) {
+            window.location.href = 'log_in_index.html?redirect=' + encodeURIComponent(currentPage);
+        }
+    }
+    
+    // Отображаем имя пользователя на защищенных страницах
+    if (protectedPages.includes(currentPage)) {
+        const username = localStorage.getItem('userEmail');
+        if (username) {
+            const usernameElements = document.querySelectorAll('#usernameDisplay, .text-wrapper-3');
+            usernameElements.forEach(element => {
+                element.textContent = username.split('@')[0] || username;
+            });
+        }
+    }
+});

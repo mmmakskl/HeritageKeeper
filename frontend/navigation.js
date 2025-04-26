@@ -1,145 +1,116 @@
-// Этот код нужно добавить в отдельный файл, например navigation.js, и подключить его ко всем страницам
-// <script src="navigation.js"></script>
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Функция для перехода на страницу
-    // Добавьте в начало navigation.js
-function navigateToLoginWithParams(email = '', password = '') {
-    // Кодируем параметры для URL
-    const encodedEmail = encodeURIComponent(email);
-    const encodedPassword = encodeURIComponent(password);
-    
-    // Формируем URL с параметрами
-    const url = `log_in_index.html?email=${encodedEmail}&password=${encodedPassword}`;
-    
-    // Переходим с анимацией
-    document.body.classList.add('fade-out');
-    setTimeout(() => {
-        window.location.href = url;
-    }, 300);
-}
-
-// Обновите обработчик для кнопки входа на главной странице
-if (document.querySelector('.home')) {
-    const loginBtn = document.querySelector('.log-in');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            navigateToLoginWithParams(); // Без параметров по умолчанию
-        });
+    // Функция для проверки авторизации
+    function isAuthenticated() {
+        return !!localStorage.getItem('userToken');
     }
-}
-    function navigateTo(page) {
+
+    // Функция для плавного перехода между страницами
+    function navigateTo(page, params = {}) {
+        // Добавляем параметры к URL, если они есть
+        let url = page;
+        if (Object.keys(params).length > 0) {
+            const queryString = new URLSearchParams(params).toString();
+            url += `?${queryString}`;
+        }
+
+        // Анимация перехода
         document.body.classList.add('fade-out');
         setTimeout(() => {
-            window.location.href = page;
+            window.location.href = url;
         }, 300);
     }
 
-    // Обработчики для главной страницы (home_page_index.html)
-    if (document.querySelector('.home')) {
-        // Переход на страницу входа
-        const loginBtn = document.querySelector('.log-in');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', function() {
-                navigateTo('log_in_index.html');
-            });
+    // Обработчик клика по логотипу
+    function handleLogoClick() {
+        if (isAuthenticated()) {
+            // Для авторизованных пользователей - переход в личный кабинет
+            navigateTo('my_collections_index.html');
+        } else {
+            // Для неавторизованных - переход на главную
+            navigateTo('home_page_index.html');
         }
+    }
 
-        // Переход на страницу регистрации
-        const registerBtn = document.querySelector('.add-account');
-        if (registerBtn) {
-            registerBtn.addEventListener('click', function() {
-                navigateTo('sign_up_index.html');
-            });
+    // Обработчик выхода из системы
+    function handleLogout() {
+        if (confirm('Вы уверены, что хотите выйти?')) {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userEmail');
+            navigateTo('home_page_index.html');
         }
+    }
 
-        // Навигация по меню (если нужно)
-        const menuItems = document.querySelectorAll('.pages .div');
-        menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const text = this.textContent.trim();
-                if (text === 'Главная') {
-                    navigateTo('home_page_index.html');
-                } else if (text === 'Каталоги') {
-                    // Здесь можно добавить переход на страницу каталогов
-                    console.log('Переход на страницу каталогов');
-                }
+    // Инициализация обработчиков событий
+    function initEventHandlers() {
+        // Логотип
+        const logos = document.querySelectorAll('.HEADING, .view, .text-wrapper');
+        logos.forEach(logo => {
+            logo.addEventListener('click', handleLogoClick);
+        });
+
+        // Выход
+        const logoutButtons = document.querySelectorAll('.exit, .logout-btn');
+        logoutButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleLogout();
             });
         });
-    }
 
-    // Обработчики для страницы входа (log_in_index.html)
-    if (document.querySelector('.login')) {
-        // Переход на страницу регистрации
-        const createAccountBtn = document.querySelector('.frame .text-wrapper-2');
-        if (createAccountBtn) {
-            createAccountBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                navigateTo('sign_up_index.html');
-            });
-        }
+        // Главная страница
+        if (document.querySelector('.home')) {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateTo('log_in_index.html');
+                });
+            }
 
-        // Переход на главную страницу при клике на логотип
-        const logo = document.querySelector('.view');
-        if (logo) {
-            logo.addEventListener('click', function() {
-                navigateTo('home_page_index.html');
-            });
-        }
-    }
-
-    // Обработчики для страницы регистрации (sign_up_index.html)
-    if (document.querySelector('.sign-up')) {
-        // Переход на страницу входа
-        const loginLink = document.querySelector('.text-wrapper-2');
-        if (loginLink) {
-            loginLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                navigateTo('log_in_index.html');
-            });
-        }
-
-        // Переход на главную страницу при клике на логотип
-        const logo = document.querySelector('.view');
-        if (logo) {
-            logo.addEventListener('click', function() {
-                navigateTo('home_page_index.html');
-            });
-        }
-
-        // Обработка кнопки "Создать аккаунт"
-        const createAccountBtn = document.querySelector('.create-account-button');
-        if (createAccountBtn) {
-            createAccountBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Здесь можно добавить логику регистрации
-                console.log('Попытка регистрации');
-                // После успешной регистрации:
-                // navigateTo('home_page_index.html');
-            });
-        }
-    }
-    // Обработчик для кнопки прокрутки вверх
-    const scrollToTopBtn = document.querySelector('.button-up');
-    if (scrollToTopBtn) {
-        scrollToTopBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    }
-    // Показ/скрытие кнопки прокрутки при скролле
-    window.addEventListener('scroll', function() {
-        const scrollToTopBtn = document.querySelector('.button-up');
-        if (scrollToTopBtn) {
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('visible');
-            } else {
-                scrollToTopBtn.classList.remove('visible');
+            const registerBtn = document.getElementById('registerBtn');
+            if (registerBtn) {
+                registerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateTo('sign_up_index.html');
+                });
             }
         }
-    });
+
+        // Страница входа
+        if (document.querySelector('.login')) {
+            const createAccountBtn = document.querySelector('.frame .text-wrapper-2');
+            if (createAccountBtn) {
+                createAccountBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateTo('sign_up_index.html');
+                });
+            }
+        }
+
+        // Страница регистрации
+        if (document.querySelector('.sign-up')) {
+            const loginLink = document.querySelector('.text-wrapper-2');
+            if (loginLink) {
+                loginLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateTo('log_in_index.html');
+                });
+            }
+        }
+    }
+
+    // Обработка параметров URL при загрузке страницы
+    function handleUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        
+        // Если пользователь аутентифицирован и есть параметр redirect
+        if (isAuthenticated() && redirect) {
+            navigateTo(redirect);
+        }
+    }
+
+    // Инициализация
+    initEventHandlers();
+    handleUrlParams();
 });
