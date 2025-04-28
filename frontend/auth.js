@@ -88,7 +88,7 @@ function validatePassword(password, inputElement) {
 function authenticateUser(email, password) {
   showLoader(true);
 
-  fetch(`${API_URL}/login`, {
+  fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -158,7 +158,7 @@ function setupSignupForm() {
 function registerUser(email, password, username) {
   showLoader(true);
 
-  fetch(`${API_URL}/register`, {
+  fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -341,16 +341,16 @@ document.addEventListener('DOMContentLoaded', function() {
         'in_collection_index.html',
         'my_account_index.html'
     ];
-    
+
     const currentPage = window.location.pathname.split('/').pop();
-    
+
     if (protectedPages.includes(currentPage)) {
         const token = localStorage.getItem('userToken');
         if (!token) {
             window.location.href = 'log_in_index.html?redirect=' + encodeURIComponent(currentPage);
         }
     }
-    
+
     // Отображаем имя пользователя на защищенных страницах
     if (protectedPages.includes(currentPage)) {
         const username = localStorage.getItem('userEmail');
