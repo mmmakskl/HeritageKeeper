@@ -1,0 +1,7 @@
+# Bin, config, and test files
+/bin
+/.env
+/config
+/tests
+/.github
+/vendor

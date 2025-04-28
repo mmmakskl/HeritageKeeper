@@ -1,0 +1,80 @@
+volumes:
+  pg-data:
+  pg-init-scripts:
+
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: Keeper
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5433"
+    networks:
+      - backend
+
+  auth:
+    build:
+      context: ./backend/auth
+      dockerfile: Dockerfile
+    image: keeper-auth:latest
+    restart: on-failure
+    depends_on:
+      - db
+    volumes:
+      - ./backend/auth/config/config.yaml:/sso.yaml
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: 12345678
+      DB_NAME: Keeper
+      APP_SECRET: test-secret
+    ports:
+      - "50051:50051"
+    networks:
+      - backend
+
+  service:
+    build:
+      context: ./backend/service
+      dockerfile: Dockerfile
+    image: keeper-service:latest
+    restart: on-failure
+    depends_on:
+      - db
+      - auth
+    volumes:
+      - ./backend/service/config/config.yaml:/keeper.yaml
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: 12345678
+      DB_NAME: Keeper
+      AUTH_URL: http://auth:50051
+    ports:
+      - "8081:8081"
+    networks:
+      - backend
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   image: keeper-frontend:latest
+  #   depends_on:
+  #     - auth
+  #     - service
+  #   ports:
+  #     - "3000:80"
+  #   networks:
+  #     - backend
+
+networks:
+  backend:
+    driver: bridge
