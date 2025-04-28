@@ -361,6 +361,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    loadUserProfile();
+    loadUserCollections();
+    setupCollectionPage();
 });
 
 // Функция для создания коллекции
@@ -419,7 +423,7 @@ function getAllUsers() {
     .then(handleResponse);
 }
 
-
+// Загрузка профиля пользователя на странице аккаунта
 function loadUserProfile() {
     if (document.querySelector('.my-account')) {
         getUserProfile()
@@ -436,3 +440,178 @@ function loadUserProfile() {
             });
     }
 }
+
+// Настройка редактирования профиля
+function setupProfileEdit() {
+    const editButtons = document.querySelectorAll('.iconamoon-edit, .text-wrapper-9');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            editUserProfile();
+        });
+    });
+}
+
+// Редактирование профиля пользователя
+function editUserProfile() {
+    const currentUsername = document.querySelector('.text-wrapper-11').textContent;
+    const currentEmail = document.querySelector('.text-wrapper-13').textContent;
+    const currentPhone = document.querySelector('.text-wrapper-15').textContent;
+    const currentBirthDate = document.querySelector('.text-wrapper-16').textContent;
+    
+    const newUsername = prompt('Имя пользователя:', currentUsername);
+    if (newUsername === null) return;
+    
+    const newPhone = prompt('Телефон:', currentPhone);
+    const newBirthDate = prompt('Дата рождения (ДД-ММ-ГГГГ):', currentBirthDate);
+    
+    const userData = {
+        username: newUsername,
+        phone: newPhone,
+        birth_date: newBirthDate
+    };
+    
+    showLoader(true);
+    updateUserProfile(userData)
+        .then(updatedUser => {
+            showSuccess('Профиль успешно обновлен');
+            loadUserProfile(); // Перезагружаем данные профиля
+        })
+        .catch(error => {
+            console.error('Ошибка обновления профиля:', error);
+            showError(document.body, 'Не удалось обновить профиль');
+        })
+        .finally(() => showLoader(false));
+}
+
+function loadUserCollections() {
+    if (document.querySelector('.my-collections')) {
+        // В реальной реализации здесь будет запрос к API для получения коллекций
+        // Пока используем mock-данные
+        const mockCollections = [
+            {
+                id: 1,
+                name: "Монеты XXI века",
+                items_count: 1,
+                image: "img/money.png"
+            }
+        ];
+        
+        const collectionsContainer = document.querySelector('.collections');
+        
+        mockCollections.forEach(collection => {
+            const collectionElement = document.createElement('div');
+            collectionElement.className = 'collection-preview';
+            collectionElement.innerHTML = `
+                <img class="mask-group" src="${collection.image}" />
+                <div class="text-wrapper-6">${collection.name}</div>
+                <div class="number-of-elements">
+                    <div class="text-wrapper-7">Количество лотов в коллекции:</div>
+                    <div class="text-wrapper-7">${collection.items_count}</div>
+                </div>
+            `;
+            collectionsContainer.appendChild(collectionElement);
+            
+            // Добавляем обработчик клика
+            collectionElement.addEventListener('click', function() {
+                window.location.href = `in_collection_index.html?collection_id=${collection.id}`;
+            });
+        });
+    }
+}
+
+// работа с эл-тами коллекции
+function setupCollectionPage() {
+    if (document.querySelector('.in-collection')) {
+        // Получаем ID коллекции из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection_id');
+        
+        // Загружаем данные коллекции (в реальной реализации - запрос к API)
+        const mockCollection = {
+            id: collectionId || 1,
+            name: "Монеты XXI века",
+            items_count: 1,
+            items: [
+                {
+                    id: 1,
+                    name: "Американский мемориальный парк",
+                    image: "img/moneta_american.png",
+                    year: "2019",
+                    country: "США",
+                    category: "Монеты"
+                }
+            ]
+        };
+        
+        // Устанавливаем название коллекции
+        document.querySelector('.text-wrapper-14').textContent = mockCollection.name;
+        document.querySelector('.text-wrapper-12').textContent = mockCollection.items_count;
+        
+        // Обработчик для кнопки добавления элемента
+        document.querySelector('.add-element').addEventListener('click', function(e) {
+            e.preventDefault();
+            addCollectionItem(mockCollection.id);
+        });
+    }
+}
+
+function addCollectionItem(collectionId) {
+    const itemName = prompt('Введите название предмета:');
+    if (!itemName) return;
+    
+    const itemData = {
+        name: itemName,
+        collection_id: collectionId,
+        // Другие поля в реальной реализации
+    };
+    
+    showLoader(true);
+    // В реальной реализации здесь будет вызов API для добавления элемента
+    setTimeout(() => {
+        showSuccess('Предмет добавлен в коллекцию');
+        showLoader(false);
+        // Обновляем страницу или добавляем элемент динамически
+        setTimeout(() => window.location.reload(), 1500);
+    }, 1000);
+}
+
+// Добавляем вызов в инициализацию
+document.addEventListener('DOMContentLoaded', function() {
+    setupCollectionPage();
+});
+
+// изменить аватар
+function setupAvatarChange() {
+    const avatarInput = document.querySelector('.text-wrapper-6'); // Кнопка "Изменить аватар"
+    if (avatarInput) {
+        avatarInput.addEventListener('click', function() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    showLoader(true);
+                    // Здесь код для загрузки аватара на сервер
+                    showSuccess('Аватар успешно обновлен');
+                    setTimeout(() => window.location.reload(), 1500);
+                } catch (error) {
+                    showError(document.body, 'Ошибка загрузки аватара');
+                } finally {
+                    showLoader(false);
+                }
+            };
+            
+            fileInput.click();
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupAvatarChange();
+});

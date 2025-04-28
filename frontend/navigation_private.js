@@ -69,32 +69,41 @@ function setupNavigation() {
     });
 
     // Навигация для кнопки "Создать коллекцию"
+    // В функции setupNavigation заменяем обработчик кнопки создания коллекции
     const addCollectionBtn = document.querySelector('.add-collection');
     if (addCollectionBtn) {
-        addCollectionBtn.addEventListener('click', function(e) {
+        addCollectionBtn.addEventListener('click', async function(e) {
             e.preventDefault();
             
-            // Запрашиваем название коллекции
-            const collectionName = prompt('Введите название коллекции:');
-            if (!collectionName) return;
-            
-            const collectionData = {
-                name: collectionName,
-                is_public: false,
-                description: ""
-            };
-            
-            showLoader(true);
-            createCollection(collectionData)
-                .then(data => {
-                    console.log('Коллекция создана:', data);
-                    window.location.reload(); // Обновляем страницу для отображения новой коллекции
-                })
-                .catch(error => {
-                    console.error('Ошибка создания коллекции:', error);
-                    showError(document.body, 'Не удалось создать коллекцию');
-                })
-                .finally(() => showLoader(false));
+            try {
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    window.location.href = 'log_in_index.html';
+                    return;
+                }
+    
+                const collectionName = prompt('Введите название коллекции:');
+                if (!collectionName) return;
+                
+                const isPublic = confirm('Сделать коллекцию публичной?');
+                const description = prompt('Описание коллекции:', '');
+                
+                showLoader(true);
+                
+                const response = await createCollection({
+                    name: collectionName,
+                    is_public: isPublic,
+                    description: description || ''
+                });
+                
+                showSuccess('Коллекция создана!');
+                setTimeout(() => window.location.reload(), 1500);
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showError(document.body, 'Ошибка при создании коллекции');
+            } finally {
+                showLoader(false);
+            }
         });
     }
 
