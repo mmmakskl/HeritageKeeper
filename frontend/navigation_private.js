@@ -73,8 +73,28 @@ function setupNavigation() {
     if (addCollectionBtn) {
         addCollectionBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Логика создания новой коллекции
-            console.log('Создание новой коллекции');
+            
+            // Запрашиваем название коллекции
+            const collectionName = prompt('Введите название коллекции:');
+            if (!collectionName) return;
+            
+            const collectionData = {
+                name: collectionName,
+                is_public: false,
+                description: ""
+            };
+            
+            showLoader(true);
+            createCollection(collectionData)
+                .then(data => {
+                    console.log('Коллекция создана:', data);
+                    window.location.reload(); // Обновляем страницу для отображения новой коллекции
+                })
+                .catch(error => {
+                    console.error('Ошибка создания коллекции:', error);
+                    showError(document.body, 'Не удалось создать коллекцию');
+                })
+                .finally(() => showLoader(false));
         });
     }
 

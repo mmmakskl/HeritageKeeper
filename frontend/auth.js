@@ -1,5 +1,9 @@
 const API_URL = 'http://localhost:8081/api';
 
+
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - auth.js started');
   initializeAuthSystem();
@@ -174,7 +178,10 @@ function registerUser(email, password, username) {
           throw new Error(data.error);
       }
       showSuccess('Регистрация успешна! Выполняется вход...');
-      authenticateUser(email, password);
+      // Вместо автоматического входа перенаправляем на страницу логина
+      setTimeout(() => {
+          window.location.href = 'log_in_index.html?email=' + encodeURIComponent(email);
+      }, 1500);
   })
   .catch(error => {
       console.error('Ошибка регистрации:', error);
@@ -355,3 +362,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Функция для создания коллекции
+function createCollection(collectionData) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collection`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(collectionData)
+    })
+    .then(handleResponse);
+}
+
+// Функция для обновления данных пользователя
+function updateUserProfile(userData) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/user`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(handleResponse);
+}
+
+// Функция для получения профиля пользователя
+function getUserProfile() {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/profile`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+// Функция для получения списка пользователей
+function getAllUsers() {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/users`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+
+function loadUserProfile() {
+    if (document.querySelector('.my-account')) {
+        getUserProfile()
+            .then(user => {
+                document.querySelector('.text-wrapper-3').textContent = user.username;
+                document.querySelector('.text-wrapper-11').textContent = user.username;
+                document.querySelector('.text-wrapper-13').textContent = user.email;
+                document.querySelector('.text-wrapper-15').textContent = user.phone;
+                document.querySelector('.text-wrapper-16').textContent = 
+                    user.birth_date ? new Date(user.birth_date).toLocaleDateString() : '__.__.____';
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки профиля:', error);
+            });
+    }
+}
