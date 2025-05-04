@@ -455,10 +455,9 @@ function setupProfileEdit() {
 
 // Редактирование профиля пользователя
 function editUserProfile() {
-    const currentUsername = document.querySelector('.text-wrapper-11').textContent;
-    const currentEmail = document.querySelector('.text-wrapper-13').textContent;
-    const currentPhone = document.querySelector('.text-wrapper-15').textContent;
-    const currentBirthDate = document.querySelector('.text-wrapper-16').textContent;
+    const currentUsername = document.querySelector('.username-display').textContent;
+    const currentPhone = document.querySelector('.phone-display').textContent;
+    const currentBirthDate = document.querySelector('.birthdate-display').textContent;
     
     const newUsername = prompt('Имя пользователя:', currentUsername);
     if (newUsername === null) return;
@@ -476,13 +475,24 @@ function editUserProfile() {
     updateUserProfile(userData)
         .then(updatedUser => {
             showSuccess('Профиль успешно обновлен');
-            loadUserProfile(); // Перезагружаем данные профиля
+            // Обновляем данные на странице
+            document.querySelector('.username-display').textContent = updatedUser.username || newUsername;
+            document.querySelector('.phone-display').textContent = updatedUser.phone || newPhone;
+            document.querySelector('.birthdate-display').textContent = 
+                updatedUser.birth_date ? formatDate(updatedUser.birth_date) : newBirthDate;
         })
         .catch(error => {
             console.error('Ошибка обновления профиля:', error);
             showError(document.body, 'Не удалось обновить профиль');
         })
         .finally(() => showLoader(false));
+}
+
+// Функция для форматирования даты
+function formatDate(dateString) {
+    if (!dateString) return '__.__.____';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU');
 }
 
 function loadUserCollections() {
@@ -561,21 +571,41 @@ function addCollectionItem(collectionId) {
     const itemName = prompt('Введите название предмета:');
     if (!itemName) return;
     
+    const itemTag = prompt('Введите тег предмета (число):');
+    if (!itemTag || isNaN(itemTag)) {
+        showError(document.body, 'Тег должен быть числом');
+        return;
+    }
+    
     const itemData = {
         name: itemName,
         collection_id: collectionId,
+        tag: parseInt(itemTag),
         // Другие поля в реальной реализации
     };
     
     showLoader(true);
-    // В реальной реализации здесь будет вызов API для добавления элемента
-    setTimeout(() => {
+    fetch(`${API_URL}/keeper/collection/item`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        },
+        body: JSON.stringify(itemData)
+    })
+    .then(handleResponse)
+    .then(data => {
         showSuccess('Предмет добавлен в коллекцию');
-        showLoader(false);
         // Обновляем страницу или добавляем элемент динамически
         setTimeout(() => window.location.reload(), 1500);
-    }, 1000);
+    })
+    .catch(error => {
+        console.error('Ошибка добавления предмета:', error);
+        showError(document.body, error.message || 'Ошибка добавления предмета');
+    })
+    .finally(() => showLoader(false));
 }
+
 
 // Добавляем вызов в инициализацию
 document.addEventListener('DOMContentLoaded', function() {

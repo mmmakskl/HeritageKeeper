@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     displayUsername();
 });
 
+const { showLoader, showSuccess, showError, createCollection } = window;
+
 function checkAuth() {
     const token = localStorage.getItem('userToken');
     if (!token) {
@@ -84,6 +86,12 @@ function setupNavigation() {
     
                 const collectionName = prompt('Введите название коллекции:');
                 if (!collectionName) return;
+
+                const collectionTag = prompt('Введите тег коллекции (число):');
+                if (!collectionTag || isNaN(collectionTag)) {
+                    alert('Тег должен быть числом');
+                    return;
+                }
                 
                 const isPublic = confirm('Сделать коллекцию публичной?');
                 const description = prompt('Описание коллекции:', '');
@@ -92,6 +100,7 @@ function setupNavigation() {
                 
                 const response = await createCollection({
                     name: collectionName,
+                    tag: parseInt(collectionTag),
                     is_public: isPublic,
                     description: description || ''
                 });

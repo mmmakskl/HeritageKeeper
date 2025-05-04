@@ -42,21 +42,32 @@
 				<div class="text-wrapper-8">О себе:</div>
 				<div class="text-wrapper-9">редактировать</div>
 				<div class="text-wrapper-10">Имя пользователя</div>
-				<div class="text-wrapper-11">TheBestCollector</div>
 				<div class="text-wrapper-12">E-mail</div>
-				<div class="text-wrapper-13">example@gmail.com</div>
 				<div class="text-wrapper-14">Телефон</div>
-				<div class="text-wrapper-15">+7 (999)-999-99 99</div>
-				<div class="text-wrapper-16">__.__.____</div>
 				<div class="text-wrapper-17">Дата рождения</div>
 				<div class="text-wrapper-18">Пароль</div>
 				<div class="text-wrapper-19">*******</div>
 				<div class="ph-calendar-duotone">
 					<img class="group" src="img/calendar.png" />
 				</div>
+				<div class="text-wrapper-11 username-display">TheBestCollector</div>
+				<div class="text-wrapper-13 email-display">example@gmail.com</div>
+				<div class="text-wrapper-15 phone-display">+7 (999)-999-99 99</div>
+				<div class="text-wrapper-16 birthdate-display">__.__.____</div>
 			</div>
 		</div>
         <script src="navigation_private.js"></script>
         <script src="auth.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const editButtons = document.querySelectorAll('.iconamoon-edit, .text-wrapper-9');
+				editButtons.forEach(button => {
+					button.addEventListener('click', function(e) {
+						e.preventDefault();
+						editUserProfile();
+					});
+				});
+			});
+		</script>
 	</body>
 </html>
