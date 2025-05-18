@@ -86,30 +86,30 @@ function setupNavigation() {
     
                 const collectionName = prompt('Введите название коллекции:');
                 if (!collectionName) return;
-
-                const collectionTag = prompt('Введите тег коллекции (число):');
-                if (!collectionTag || isNaN(collectionTag)) {
-                    alert('Тег должен быть числом');
+    
+                const collectionDescription = prompt('Описание коллекции:', '');
+                const categoryId = prompt('ID категории (число):', '1');
+                if (!categoryId || isNaN(categoryId)) {
+                    alert('ID категории должен быть числом');
                     return;
                 }
                 
                 const isPublic = confirm('Сделать коллекцию публичной?');
-                const description = prompt('Описание коллекции:', '');
                 
                 showLoader(true);
                 
                 const response = await createCollection({
                     name: collectionName,
-                    tag: parseInt(collectionTag),
-                    is_public: isPublic,
-                    description: description || ''
+                    description: collectionDescription,
+                    category_id: parseInt(categoryId),
+                    is_public: isPublic
                 });
                 
                 showSuccess('Коллекция создана!');
                 setTimeout(() => window.location.reload(), 1500);
             } catch (error) {
                 console.error('Ошибка:', error);
-                showError(document.body, 'Ошибка при создании коллекции');
+                showError(document.body, error.message || 'Ошибка при создании коллекции');
             } finally {
                 showLoader(false);
             }

@@ -424,21 +424,91 @@ function getAllUsers() {
 }
 
 // Загрузка профиля пользователя на странице аккаунта
-function loadUserProfile() {
-    if (document.querySelector('.my-account')) {
-        getUserProfile()
-            .then(user => {
-                document.querySelector('.text-wrapper-3').textContent = user.username;
-                document.querySelector('.text-wrapper-11').textContent = user.username;
-                document.querySelector('.text-wrapper-13').textContent = user.email;
-                document.querySelector('.text-wrapper-15').textContent = user.phone;
-                document.querySelector('.text-wrapper-16').textContent = 
-                    user.birth_date ? new Date(user.birth_date).toLocaleDateString() : '__.__.____';
+function loadUserCollections() {
+    if (document.querySelector('.my-collections')) {
+        showLoader(true);
+        getCollections()
+            .then(collections => {
+                const collectionsContainer = document.querySelector('.collections');
+                collectionsContainer.innerHTML = ''; // Clear existing
+                
+                collections.forEach(collection => {
+                    const collectionElement = document.createElement('div');
+                    collectionElement.className = 'collection-preview';
+                    collectionElement.innerHTML = `
+                        <img class="mask-group" src="${collection.image || 'img/money.png'}" />
+                        <div class="text-wrapper-6">${collection.name}</div>
+                        <div class="number-of-elements">
+                            <div class="text-wrapper-7">Количество лотов в коллекции:</div>
+                            <div class="text-wrapper-7">${collection.items_count || 0}</div>
+                        </div>
+                        <div class="collection-actions">
+                            <button class="edit-collection" data-id="${collection.id}">✏️</button>
+                            <button class="delete-collection" data-id="${collection.id}">🗑️</button>
+                        </div>
+                    `;
+                    collectionsContainer.appendChild(collectionElement);
+                    
+                    // Add click handler
+                    collectionElement.querySelector('.edit-collection').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editCollection(collection.id);
+                    });
+                    
+                    collectionElement.querySelector('.delete-collection').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteCollection(collection.id)
+                            .then(() => window.location.reload());
+                    });
+                    
+                    collectionElement.addEventListener('click', function() {
+                        window.location.href = `in_collection_index.html?collection_id=${collection.id}`;
+                    });
+                });
             })
             .catch(error => {
-                console.error('Ошибка загрузки профиля:', error);
-            });
+                console.error('Ошибка загрузки коллекций:', error);
+                showError(document.body, 'Не удалось загрузить коллекции');
+            })
+            .finally(() => showLoader(false));
     }
+}
+
+function editCollection(collectionId) {
+    getCollections()
+        .then(collections => {
+            const collection = collections.find(c => c.id === collectionId);
+            if (!collection) return;
+            
+            const newName = prompt('Название коллекции:', collection.name);
+            if (newName === null) return;
+            
+            const newDescription = prompt('Описание:', collection.description);
+            const newCategory = prompt('ID категории:', collection.category_id);
+            if (!newCategory || isNaN(newCategory)) {
+                showError(document.body, 'ID категории должен быть числом');
+                return;
+            }
+            
+            const isPublic = confirm('Сделать коллекцию публичной?');
+            
+            showLoader(true);
+            updateCollection(collectionId, {
+                name: newName,
+                description: newDescription,
+                category_id: parseInt(newCategory),
+                is_public: isPublic
+            })
+                .then(() => {
+                    showSuccess('Коллекция обновлена');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Ошибка обновления коллекции:', error);
+                    showError(document.body, error.message || 'Ошибка обновления коллекции');
+                })
+                .finally(() => showLoader(false));
+        });
 }
 
 // Настройка редактирования профиля
@@ -454,8 +524,10 @@ function setupProfileEdit() {
 }
 
 // Редактирование профиля пользователя
+// Update the editUserProfile function in auth.js
 function editUserProfile() {
     const currentUsername = document.querySelector('.username-display').textContent;
+    const currentEmail = document.querySelector('.email-display').textContent;
     const currentPhone = document.querySelector('.phone-display').textContent;
     const currentBirthDate = document.querySelector('.birthdate-display').textContent;
     
@@ -465,25 +537,38 @@ function editUserProfile() {
     const newPhone = prompt('Телефон:', currentPhone);
     const newBirthDate = prompt('Дата рождения (ДД-ММ-ГГГГ):', currentBirthDate);
     
+    // Validate date format
+    if (newBirthDate && !/^\d{2}-\d{2}-\d{4}$/.test(newBirthDate)) {
+        showError(document.body, 'Неверный формат даты. Используйте ДД-ММ-ГГГГ');
+        return;
+    }
+    
     const userData = {
+        app_id: 1,
         username: newUsername,
-        phone: newPhone,
-        birth_date: newBirthDate
+        phone: newPhone || null,
+        birth_date: newBirthDate || null
     };
     
     showLoader(true);
     updateUserProfile(userData)
         .then(updatedUser => {
             showSuccess('Профиль успешно обновлен');
-            // Обновляем данные на странице
+            // Update displayed values
             document.querySelector('.username-display').textContent = updatedUser.username || newUsername;
             document.querySelector('.phone-display').textContent = updatedUser.phone || newPhone;
             document.querySelector('.birthdate-display').textContent = 
                 updatedUser.birth_date ? formatDate(updatedUser.birth_date) : newBirthDate;
+            
+            // Update localStorage if email changed
+            if (updatedUser.email && updatedUser.email !== currentEmail) {
+                localStorage.setItem('userEmail', updatedUser.email);
+                document.querySelector('.email-display').textContent = updatedUser.email;
+            }
         })
         .catch(error => {
             console.error('Ошибка обновления профиля:', error);
-            showError(document.body, 'Не удалось обновить профиль');
+            showError(document.body, error.message || 'Не удалось обновить профиль');
         })
         .finally(() => showLoader(false));
 }
@@ -532,6 +617,60 @@ function loadUserCollections() {
 }
 
 // работа с эл-тами коллекции
+// Collection CRUD operations
+function getCollections() {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collections`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+function createCollection(collectionData) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            name: collectionData.name,
+            description: collectionData.description || '',
+            category_id: parseInt(collectionData.category_id) || 1,
+            is_public: collectionData.is_public || false
+        })
+    })
+    .then(handleResponse);
+}
+
+function updateCollection(collectionId, collectionData) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(collectionData)
+    })
+    .then(handleResponse);
+}
+
+function deleteCollection(collectionId) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
 function setupCollectionPage() {
     if (document.querySelector('.in-collection')) {
         // Получаем ID коллекции из URL
@@ -568,42 +707,98 @@ function setupCollectionPage() {
 }
 
 function addCollectionItem(collectionId) {
-    const itemName = prompt('Введите название предмета:');
-    if (!itemName) return;
+    const itemTitle = prompt('Введите название предмета:');
+    if (!itemTitle) return;
     
-    const itemTag = prompt('Введите тег предмета (число):');
-    if (!itemTag || isNaN(itemTag)) {
-        showError(document.body, 'Тег должен быть числом');
+    const itemDescription = prompt('Описание предмета:', '');
+    const itemCategory = prompt('ID категории (число):', '1');
+    if (!itemCategory || isNaN(itemCategory)) {
+        showError(document.body, 'ID категории должен быть числом');
         return;
     }
     
+    const itemCountry = prompt('Страна:', '');
+    const itemYear = prompt('Год:', '');
+    const isPublic = confirm('Сделать предмет публичным?');
+    
     const itemData = {
-        name: itemName,
-        collection_id: collectionId,
-        tag: parseInt(itemTag),
-        // Другие поля в реальной реализации
+        title: itemTitle,
+        description: itemDescription,
+        category_id: parseInt(itemCategory),
+        item_images_url: [],
+        is_public: isPublic,
+        country: itemCountry,
+        year: itemYear
     };
     
     showLoader(true);
-    fetch(`${API_URL}/keeper/collection/item`, {
+    createCollectionItem(collectionId, itemData)
+        .then(data => {
+            showSuccess('Предмет добавлен в коллекцию');
+            setTimeout(() => window.location.reload(), 1500);
+        })
+        .catch(error => {
+            console.error('Ошибка добавления предмета:', error);
+            showError(document.body, error.message || 'Ошибка добавления предмета');
+        })
+        .finally(() => showLoader(false));
+}
+// Item CRUD operations
+function getCollectionItems(collectionId) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/${collectionId}/items`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+function createCollectionItem(collectionId, itemData) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/item`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            collection_id: parseInt(collectionId),
+            title: itemData.title,
+            description: itemData.description || '',
+            category_id: parseInt(itemData.category_id) || 1,
+            item_images_url: itemData.item_images_url || [],
+            is_public: itemData.is_public || false,
+            country: itemData.country || '',
+            year: itemData.year || ''
+        })
+    })
+    .then(handleResponse);
+}
+
+function updateCollectionItem(itemId, itemData) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/item/${itemId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(itemData)
     })
-    .then(handleResponse)
-    .then(data => {
-        showSuccess('Предмет добавлен в коллекцию');
-        // Обновляем страницу или добавляем элемент динамически
-        setTimeout(() => window.location.reload(), 1500);
+    .then(handleResponse);
+}
+
+function deleteCollectionItem(itemId) {
+    const token = localStorage.getItem('userToken');
+    return fetch(`${API_URL}/keeper/collection/item/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
     })
-    .catch(error => {
-        console.error('Ошибка добавления предмета:', error);
-        showError(document.body, error.message || 'Ошибка добавления предмета');
-    })
-    .finally(() => showLoader(false));
+    .then(handleResponse);
 }
 
 
