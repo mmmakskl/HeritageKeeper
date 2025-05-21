@@ -1,0 +1,47 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+* {
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0px;
+    height: 100%;
+}
+
+/* a blue color as a generic focus style */
+button:focus-visible {
+    outline: 2px solid #4a90e2 !important;
+    outline: -webkit-focus-ring-color auto 5px !important;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* Add to globals.css */
+body {
+    transition: opacity 0.3s ease;
+    opacity: 1;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+.button-up {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+.button-up.visible {
+    opacity: 1;
+    visibility: visible;
+}

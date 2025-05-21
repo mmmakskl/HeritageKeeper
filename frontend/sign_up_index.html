@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="sign_up_globals.css" />
+    <link rel="stylesheet" href="sign_up_style.css" />
+    <style>
+      .login {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+      }
+      .div {
+          width: 100%;
+          max-width: 400px;
+          padding: 20px;
+      }
+      </style>
+  </head>
+  <body>
+    <div class="sign-up">
+      <div class="div">
+        <div class="overlap-group">
+          <div class="text-wrapper">Впервые у нас? Зарегистрируйтесь</div>
+          <p class="p"><span class="span">Уже есть аккаунт? </span><span class="text-wrapper-2">Войти</span></p>
+        </div>
+        <div class="overlap">
+          <div class="div-2">
+              <div class="frame">
+                  <input type="text" class="input-field" placeholder="Введите имя пользователя" required />
+              </div>
+              <div class="frame">
+                  <input type="email" class="input-field" placeholder="Введите ваш e-mail" required />
+              </div>
+              <div class="frame-wrapper">
+                  <input type="password" class="input-field" placeholder="Введите пароль" required />
+              </div>
+              <div class="frame-wrapper">
+                  <input type="password" class="input-field" placeholder="Подтвердите пароль" required />
+              </div>
+              <button class="create-account-button">Создать аккаунт</button>
+          </div>
+      </div>
+        <div class="view"><div class="text-wrapper-4">КоллекционерЪ</div></div>
+      </div>
+    </div>
+    <script src="navigation.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="my_account_globals.css" />
+		<link rel="stylesheet" href="my_account_style.css" />
+	</head>
+	<body>
+		<div class="my-account">
+			<div class="div">
+				<div class="overlap">
+					<img class="codicon-account" src="img/user.png" />
+					<div class="HEADING">
+						<div class="view">
+							<div class="text-wrapper">КоллекционерЪ</div>
+						</div>
+					</div>
+					<div class="text-wrapper-2">Изменить аватар</div>
+					<div class="user-name">
+						<img class="iconamoon-edit" src="img/pencil.png" />
+						<div class="text-wrapper-3">Имя пользователя</div>
+					</div>
+					<div class="tabs">
+						<div class="div-wrapper">
+							<div class="text-wrapper-4">Мои коллекции</div>
+						</div>
+					</div>
+					<div class="tabs-2">
+						<div class="div-wrapper">
+							<div class="text-wrapper-5">Изменить профиль</div>
+						</div>
+						<div class="exit">
+							<div class="text-wrapper-4">Выход</div>
+						</div>
+					</div>
+				</div>
+				<div class="text-wrapper-6">Изменить аватар</div>
+				<div class="overlap-group">
+					<img class="img" src="img/user.png" />
+				</div>
+				<div class="text-wrapper-7">Информация</div>
+				<div class="text-wrapper-8">О себе:</div>
+				<div class="text-wrapper-9">редактировать</div>
+				<div class="text-wrapper-10">Имя пользователя</div>
+				<div class="text-wrapper-12">E-mail</div>
+				<div class="text-wrapper-14">Телефон</div>
+				<div class="text-wrapper-17">Дата рождения</div>
+				<div class="text-wrapper-18">Пароль</div>
+				<div class="text-wrapper-19">*******</div>
+				<div class="ph-calendar-duotone">
+					<img class="group" src="img/calendar.png" />
+				</div>
+				<div class="text-wrapper-11 username-display">TheBestCollector</div>
+				<div class="text-wrapper-13 email-display">example@gmail.com</div>
+				<div class="text-wrapper-15 phone-display">+7 (999)-999-99 99</div>
+				<div class="text-wrapper-16 birthdate-display">__.__.____</div>
+			</div>
+		</div>
+        <script src="navigation_private.js"></script>
+        <script src="auth.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const editButtons = document.querySelectorAll('.iconamoon-edit, .text-wrapper-9');
+				editButtons.forEach(button => {
+					button.addEventListener('click', function(e) {
+						e.preventDefault();
+						editUserProfile();
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
