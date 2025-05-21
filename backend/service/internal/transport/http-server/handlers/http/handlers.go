@@ -22,7 +22,7 @@ import (
 
 type service interface {
 	Login(ctx context.Context, email string) error
-	Register(ctx context.Context, userID int64, email string, username string, phone string) error
+	Register(ctx context.Context, userID int64, email string, username string) error
 	User(ctx context.Context, userID int64) (models.User, error)
 	Users() ([]models.User, error)
 	UpdateUserInfo(ctx context.Context, userID int64, username string, email string, phone string, birth_date time.Time) error
@@ -31,8 +31,8 @@ type service interface {
 	DeleteCollection(ctx context.Context, userID, collectionID int64) error
 	Collection(ctx context.Context, userID, collectionID int64) (models.Collection, error)
 	Collections(ctx context.Context, userID int64) ([]models.Collection, error)
-	SetItem(ctx context.Context, collectionID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) (int64, error)
-	UpdateItem(ctx context.Context, collectionID int64, itemID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) error
+	SetItem(ctx context.Context, userID int64, collectionID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) (int64, error)
+	UpdateItem(ctx context.Context, userID int64, collectionID int64, itemID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) error
 	DeleteItem(ctx context.Context, collectionID, itemID int64) error
 	Item(ctx context.Context, collectionID, itemID int64) (models.Item, error)
 	Items(ctx context.Context, collectionID int64) ([]models.Item, error)
@@ -122,7 +122,7 @@ func (h *handler) Register(log *slog.Logger) http.HandlerFunc {
 		}
 		log.Info("user registered", slog.Int64("user_id", userID))
 
-		err = h.service.Register(r.Context(), userID, req.Email, req.Username, req.Phone)
+		err = h.service.Register(r.Context(), userID, req.Email, req.Username)
 		if err != nil {
 			log.Error("failed to register user in storage", slog.String("err", err.Error()))
 			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))

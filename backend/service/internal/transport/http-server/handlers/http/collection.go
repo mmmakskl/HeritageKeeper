@@ -291,17 +291,13 @@ func (h *handler) Collection(log *slog.Logger) http.HandlerFunc {
 		err = render.DecodeJSON(r.Body, &req)
 		if err != nil {
 			log.Error("failed to decode request", slog.String("err", err.Error()))
-
 			render.JSON(w, r, resp.Error("failed to decode request"))
-
 			return
 		}
 
 		if err := validator.New().Struct(req); err != nil {
 			log.Error("invalid request", slog.String("err", err.Error()))
-
 			render.JSON(w, r, resp.Error("failed to validate request"))
-
 			return
 		}
 

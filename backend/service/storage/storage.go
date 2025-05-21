@@ -12,4 +12,5 @@ var (
 	ErrItemExists         = errors.New("item already exists")
 	ErrItemNotFound       = errors.New("item not found")
 	ErrNotExists          = errors.New("not exists")
+	ErrExists             = errors.New("exists")
 )

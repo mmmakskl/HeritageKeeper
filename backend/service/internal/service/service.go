@@ -29,7 +29,7 @@ type ReadStorage interface {
 }
 
 type WriteStorage interface {
-	Register(ctx context.Context, userid int64, email string, username string, phone string) error
+	Register(ctx context.Context, userid int64, email string, username string) error
 	UpdateUserInfo(
 		ctx context.Context,
 		userID int64,
@@ -65,6 +65,7 @@ type WriteStorage interface {
 	) (int64, error)
 	SetItem(
 		ctx context.Context,
+		userID int64,
 		collectionID int64,
 		title string,
 		description string,
@@ -76,6 +77,7 @@ type WriteStorage interface {
 	) (int64, error)
 	UpdateItem(
 		ctx context.Context,
+		userID int64,
 		collectionID int64,
 		itemID int64,
 		title string,
@@ -103,10 +105,10 @@ func New(
 	}
 }
 
-func (s *Service) Register(ctx context.Context, user_id int64, email string, username string, phone string) error {
+func (s *Service) Register(ctx context.Context, user_id int64, email string, username string) error {
 	s.log.Debug("Register user", slog.String("email", email))
 
-	return s.write_storage.Register(ctx, user_id, email, username, phone)
+	return s.write_storage.Register(ctx, user_id, email, username)
 }
 
 func (s *Service) User(ctx context.Context, userID int64) (models.User, error) {
@@ -210,6 +212,7 @@ func (s *Service) Collection(ctx context.Context, userID, collectionID int64) (m
 
 func (s *Service) SetItem(
 	ctx context.Context,
+	userID int64,
 	collectionID int64,
 	title string,
 	description string,
@@ -221,7 +224,7 @@ func (s *Service) SetItem(
 ) (int64, error) {
 	s.log.Debug("Set item", slog.String("collection_id", strconv.Itoa(int(collectionID))))
 
-	itemID, err := s.write_storage.SetItem(ctx, collectionID, title, description, category_id, country, images, year, attributes)
+	itemID, err := s.write_storage.SetItem(ctx, userID, collectionID, title, description, category_id, country, images, year, attributes)
 	if err != nil {
 		return 0, err
 	}
@@ -231,6 +234,7 @@ func (s *Service) SetItem(
 
 func (s *Service) UpdateItem(
 	ctx context.Context,
+	userID int64,
 	collectionID int64,
 	itemID int64,
 	title string,
@@ -242,7 +246,7 @@ func (s *Service) UpdateItem(
 	attributes []string,
 ) error {
 	s.log.Debug("Update item", slog.String("item_id", strconv.Itoa(int(itemID))))
-	return s.write_storage.UpdateItem(ctx, collectionID, itemID, title, description, category_id, country, images, year, attributes)
+	return s.write_storage.UpdateItem(ctx, userID, collectionID, itemID, title, description, category_id, country, images, year, attributes)
 }
 
 func (s *Service) DeleteItem(ctx context.Context, collectionID, itemID int64) error {

@@ -61,7 +61,7 @@ func (s *Storage) Exists(query string) error {
 }
 
 // TODO: Сделать через транзакции
-func (s *Storage) Register(ctx context.Context, userid int64, email string, username string, phone string) error {
+func (s *Storage) Register(ctx context.Context, userid int64, email string, username string) error {
 	const op = "postgresql.Register"
 
 	stmt, err := s.db.Prepare("INSERT INTO keeper.users_info (email, username, user_id, phone, birth_date) VALUES ($1, $2, $3, $4, $5);")
@@ -71,7 +71,7 @@ func (s *Storage) Register(ctx context.Context, userid int64, email string, user
 	defer stmt.Close()
 
 	birth_date := time.Time{}
-	_, err = stmt.Exec(email, username, userid, phone, birth_date)
+	_, err = stmt.Exec(email, username, userid, "-", birth_date)
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == pq.ErrorCode("23505") {
@@ -149,6 +149,9 @@ func (s *Storage) User(ctx context.Context, userID int64) (models.User, error) {
 		}
 		return models.User{}, fmt.Errorf("%s: %w", op, err)
 	}
+	if user.Phone == "" {
+		user.Phone = "-"
+	}
 	return user, nil
 }
 
@@ -193,7 +196,6 @@ func (s *Storage) SetCollection(
 		if !errors.Is(err, storage.ErrNotExists) {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrCollectionExists)
 		}
-		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
 	stmt, err := s.db.Prepare("INSERT INTO keeper.collections (user_id, name, description, cover_image_url, category_id, is_public) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id")
@@ -329,6 +331,7 @@ func (s *Storage) DeleteCollection(ctx context.Context, userID, collectionID int
 // TODO: Продумать логику взаимодействия пользователя с предметами
 func (s *Storage) SetItem(
 	ctx context.Context,
+	userID int64,
 	collectionID int64,
 	title string,
 	description string,
@@ -340,7 +343,7 @@ func (s *Storage) SetItem(
 ) (int64, error) {
 	const op = "postgresql.CreateItem"
 
-	if err := s.Exists(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM keeper.collections WHERE id = %d)", collectionID)); err != nil {
+	if err := s.Exists(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM keeper.collections WHERE id = %d AND user_id = %d)", collectionID, userID)); err != nil {
 		if errors.Is(err, storage.ErrNotExists) {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrCollectionNotFound)
 		}
@@ -350,17 +353,18 @@ func (s *Storage) SetItem(
 		if !errors.Is(err, storage.ErrNotExists) {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrItemExists)
 		}
-		return 0, fmt.Errorf("%s: %w", op, err)
+		// return 0, fmt.Errorf("%s: %s %w", op, "Item", storage.ErrExists)
 	}
 
-	stmt, err := s.db.Prepare("INSERT INTO keeper.items (collection_id, title, description, category_id, country, item_images_url, year, attributes) VALUES ($1, $2, $3, $4, $5) RETURNING id")
+	stmt, err := s.db.Prepare("INSERT INTO keeper.items (collection_id, title, description, category_id, country, item_images_url, year) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
+	pqImages := pq.StringArray(images)
 	var itemID int64
-	err = stmt.QueryRow(collectionID, title, title, description, category_id, country, images, year, attributes).Scan(&itemID)
+	err = stmt.QueryRow(collectionID, title, description, category_id, country, pqImages, year).Scan(&itemID)
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == pq.ErrorCode("23505") {
@@ -374,6 +378,7 @@ func (s *Storage) SetItem(
 
 func (s *Storage) UpdateItem(
 	ctx context.Context,
+	userID int64,
 	collectionID int64,
 	itemID int64,
 	title string,
@@ -385,6 +390,13 @@ func (s *Storage) UpdateItem(
 	attributes []string,
 ) error {
 	const op = "postgresql.UpdateItem"
+	if err := s.Exists(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM keeper.collections WHERE id = %d AND user_id = %d)", collectionID, userID)); err != nil {
+		if errors.Is(err, storage.ErrNotExists) {
+			return fmt.Errorf("%s: %w", op, storage.ErrCollectionNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	if err := s.Exists(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM keeper.items WHERE id = %d AND collection_id = %d)", itemID, collectionID)); err != nil {
 		if errors.Is(err, storage.ErrNotExists) {
 			return fmt.Errorf("%s: %w", op, storage.ErrItemNotFound)
