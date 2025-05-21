@@ -15,7 +15,7 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	log.Info("Starting HeritageKeeper application", slog.Any("config", cfg))
+	log.Info("Starting HeritageKeeper application", slog.Any("GRPC-port", cfg.GRPC.Port))
 
 	application := app.New(log, cfg.GRPC.Port, *cfg, cfg.TockenTTL)
 

@@ -64,14 +64,14 @@ func (s *Storage) Exists(query string) error {
 func (s *Storage) Register(ctx context.Context, userid int64, email string, username string) error {
 	const op = "postgresql.Register"
 
-	stmt, err := s.db.Prepare("INSERT INTO keeper.users_info (email, username, user_id, phone, birth_date) VALUES ($1, $2, $3, $4, $5);")
+	stmt, err := s.db.Prepare("INSERT INTO keeper.users_info (email, username, user_id, phone, birth_date) VALUES ($1, $2, $3, NULL, $4);")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
 	birth_date := time.Time{}
-	_, err = stmt.Exec(email, username, userid, "-", birth_date)
+	_, err = stmt.Exec(email, username, userid, birth_date)
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == pq.ErrorCode("23505") {
