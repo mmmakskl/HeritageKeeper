@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -26,38 +26,38 @@ type service interface {
 	User(ctx context.Context, userID int64) (models.User, error)
 	Users() ([]models.User, error)
 	UpdateUserInfo(ctx context.Context, userID int64, username string, email string, phone string, birth_date time.Time) error
-	SetCollection(ctx context.Context, userID int64, collectionName string, description string, categoryID int64, isPublic bool) error
-	//...
+	SetCollection(ctx context.Context, userID int64, collectionName string, description string, image_url string, categoryID int64, isPublic bool) (int64, error)
+	UpdateCollection(ctx context.Context, userID, collectionID int64, collectionName string, description string, categoryID int64, isPublic bool) error
+	DeleteCollection(ctx context.Context, userID, collectionID int64) error
+	Collection(ctx context.Context, userID, collectionID int64) (models.Collection, error)
+	Collections(ctx context.Context, userID int64) ([]models.Collection, error)
+	SetItem(ctx context.Context, userID int64, collectionID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) (int64, error)
+	UpdateItem(ctx context.Context, userID int64, collectionID int64, itemID int64, title string, description string, category_id int64, country string, images []string, year string, attributes []string) error
+	DeleteItem(ctx context.Context, collectionID, itemID int64) error
+	Item(ctx context.Context, collectionID, itemID int64) (models.Item, error)
+	Items(ctx context.Context, collectionID int64) ([]models.Item, error)
 }
 
 type Request struct {
-	Email          string `json:"email"`
-	Password       string `json:"password"`
-	AppID          int32  `json:"app_id,omitempty"`
-	Username       string `json:"username,omitempty"`
-	Phone          string `json:"phone,omitempty"`
-	BirthDate      string `json:"birth_date,omitempty"`
-	CollectionID   int64  `json:"id,omitempty"`
-	CollectionName string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
-	CategoryID     int64  `json:"category_id,omitempty"`
-	IsPublic       bool   `json:"is_public,omitempty"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	AppID     int32  `json:"app_id,omitempty"`
+	Username  string `json:"username,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	BirthDate string `json:"birth_date,omitempty"`
+	ImageURL  string `json:"profile_image_url,omitempty"`
 }
 
 type Response struct {
 	resp.Response
-	Users          []models.User `json:"users,omitempty"`
-	UserID         int64         `json:"user_id,omitempty"`
-	Username       string        `json:"username,omitempty"`
-	Phone          string        `json:"phone,omitempty"`
-	BirthDate      time.Time     `json:"birth_date,omitempty"`
-	Email          string        `json:"email,omitempty"`
-	CollectionID   int64         `json:"id,omitempty"`
-	CollectionName string        `json:"name,omitempty"`
-	CategoryID     int64         `json:"category_id,omitempty"`
-	IsPublic       bool          `json:"is_public,omitempty"`
-	Message        string        `json:"message,omitempty"`
-	Token          string        `json:"token,omitempty"`
+	Users     []models.User `json:"users,omitempty"`
+	UserID    int64         `json:"user_id,omitempty"`
+	Username  string        `json:"username,omitempty"`
+	Phone     string        `json:"phone,omitempty"`
+	BirthDate *time.Time    `json:"birth_date,omitempty"`
+	Email     string        `json:"email,omitempty"`
+	Message   string        `json:"message,omitempty"`
+	Token     string        `json:"token,omitempty"`
 }
 
 type handler struct {
@@ -251,7 +251,7 @@ func (h *handler) Profile(log *slog.Logger) http.HandlerFunc {
 			UserID:    user.UserID,
 			Username:  user.Username,
 			Phone:     user.Phone,
-			BirthDate: user.Birth_date,
+			BirthDate: &user.Birth_date,
 			Email:     user.Email,
 			Message:   "user profile",
 		})
@@ -286,6 +286,7 @@ func (h *handler) Users(log *slog.Logger) http.HandlerFunc {
 	}
 }
 
+// TODO: Нет такого юзераб exists
 func (h *handler) UpdateUserInfo(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.auth.UpdateUserInfo"
@@ -364,82 +365,9 @@ func (h *handler) UpdateUserInfo(log *slog.Logger) http.HandlerFunc {
 			UserID:    userIDInt,
 			Username:  req.Username,
 			Phone:     req.Phone,
-			BirthDate: birthDate,
+			BirthDate: &birthDate,
 			Email:     req.Email,
 			Message:   "user info updated",
-		})
-	}
-}
-
-func (h *handler) CreateCollection(log *slog.Logger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.auth.SetCollection"
-
-		log := log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		claims, err := jwt.GetClaimsFromContext(r.Context())
-		if err != nil {
-			log.Error("failed to get claims from context", slog.String("err", err.Error()))
-			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))
-			return
-		}
-
-		userID, err := jwt.GetUserIDFromClaims(claims)
-		if err != nil {
-			log.Error("failed to get user id from claims", slog.String("err", err.Error()))
-			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))
-			return
-		}
-
-		log.Info("user id from claims", slog.String("user_id", userID))
-
-		userIDInt, err := strconv.ParseInt(userID, 10, 64)
-		if err != nil {
-			log.Error("failed to parse user id", slog.String("err", err.Error()))
-			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))
-			return
-		}
-
-		var req Request
-
-		err = render.DecodeJSON(r.Body, &req)
-		if err != nil {
-			log.Error("failed to decode request", slog.String("err", err.Error()))
-
-			render.JSON(w, r, resp.Error("failed to decode request"))
-
-			return
-		}
-
-		if err := validator.New().Struct(req); err != nil {
-			log.Error("invalid request", slog.String("err", err.Error()))
-
-			render.JSON(w, r, resp.Error("failed to validate request"))
-
-			return
-		}
-
-		err = h.service.SetCollection(r.Context(), userIDInt, req.CollectionName, req.Description, req.CategoryID, req.IsPublic)
-		if err != nil {
-			log.Error("failed to set collection in storage", slog.String("err", err.Error()))
-			render.JSON(w, r, response.Error(fmt.Sprintf("internal server error %d", http.StatusInternalServerError)))
-			return
-		}
-		log.Info("collection set", slog.Int64("user_id", userIDInt))
-		render.JSON(w, r, Response{
-			Response: resp.Response{
-				Status: response.OK().Status,
-				Error:  response.OK().Error,
-			},
-			UserID:         userIDInt,
-			CollectionID:   req.CollectionID,
-			CollectionName: req.CollectionName,
-			CategoryID:     req.CategoryID,
-			IsPublic:       req.IsPublic,
-			Message:        "collection set",
 		})
 	}
 }

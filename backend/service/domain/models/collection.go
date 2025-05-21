@@ -11,3 +11,9 @@ type Collection struct {
 	CreatedAt          string `json:"created_at"`
 	UpdatedAt          string `json:"updated_at"`
 }
+
+type Category struct {
+	CategoryID   int64  `json:"id"`
+	CategoryName string `json:"name"`
+	Description  string `json:"description"`
+}
