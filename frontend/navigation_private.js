@@ -30,6 +30,32 @@ function displayUsername() {
 }
 
 function setupNavigation() {
+
+    // Обработчик для кнопки добавления элемента в коллекцию
+    const addElementBtn = document.querySelector('.add-element');
+    if (addElementBtn) {
+        addElementBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const collectionId = new URLSearchParams(window.location.search).get('collection_id');
+            if (collectionId) {
+                addCollectionItem(collectionId);
+            }
+        });
+    }
+
+    // Обработчик для кнопки изменения аватара
+    const avatarChangeButtons = document.querySelectorAll('.text-wrapper-2, .text-wrapper-6');
+    avatarChangeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.click();
+        });
+    });
+
+
     // Навигация для страницы "Мои коллекции"
     const myCollectionsLinks = document.querySelectorAll('.tabs .text-wrapper-4');
     myCollectionsLinks.forEach(link => {
@@ -86,30 +112,30 @@ function setupNavigation() {
     
                 const collectionName = prompt('Введите название коллекции:');
                 if (!collectionName) return;
-    
-                const collectionDescription = prompt('Описание коллекции:', '');
-                const categoryId = prompt('ID категории (число):', '1');
-                if (!categoryId || isNaN(categoryId)) {
-                    alert('ID категории должен быть числом');
+
+                const collectionTag = prompt('Введите тег коллекции (число):');
+                if (!collectionTag || isNaN(collectionTag)) {
+                    alert('Тег должен быть числом');
                     return;
                 }
                 
                 const isPublic = confirm('Сделать коллекцию публичной?');
+                const description = prompt('Описание коллекции:', '');
                 
                 showLoader(true);
                 
                 const response = await createCollection({
                     name: collectionName,
-                    description: collectionDescription,
-                    category_id: parseInt(categoryId),
-                    is_public: isPublic
+                    tag: parseInt(collectionTag),
+                    is_public: isPublic,
+                    description: description || ''
                 });
                 
                 showSuccess('Коллекция создана!');
                 setTimeout(() => window.location.reload(), 1500);
             } catch (error) {
                 console.error('Ошибка:', error);
-                showError(document.body, error.message || 'Ошибка при создании коллекции');
+                showError(document.body, 'Ошибка при создании коллекции');
             } finally {
                 showLoader(false);
             }

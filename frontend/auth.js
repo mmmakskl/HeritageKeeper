@@ -4,9 +4,14 @@ const API_URL = 'http://localhost:8081/api';
 
 
 
+// Обновленный обработчик 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded - auth.js started');
-  initializeAuthSystem();
+    initializeAuthSystem();
+    setupAccountPage();
+    setupCollectionsPage();
+    setupCollectionItemsPage();
+    setupItemDeletion();
+    setupAvatarChange();
 });
 
 function initializeAuthSystem() {
@@ -212,25 +217,21 @@ function logoutUser() {
 }
 
 function checkAuth(redirectUrl) {
-  const protectedRoutes = ['my_collections_index.html', 'home_page_index.html'];
-  const authPages = ['log_in_index.html', 'sign_up_index.html'];
-  const currentPage = window.location.pathname.split('/').pop();
+    const token = localStorage.getItem('userToken');
+    const currentPage = window.location.pathname.split('/').pop();
+    const authPages = ['log_in_index.html', 'sign_up_index.html'];
 
-  const token = localStorage.getItem('userToken');
-  const isProtected = protectedRoutes.includes(currentPage);
-  const isAuthPage = authPages.includes(currentPage);
+    if (!token && !authPages.includes(currentPage)) {
+        window.location.href = `log_in_index.html?redirect=${encodeURIComponent(redirectUrl || currentPage)}`;
+        return false;
+    }
 
-  if (isProtected && !token) {
-      window.location.href = `login.html?redirect=${encodeURIComponent(redirectUrl || window.location.pathname)}`;
-      return false;
-  }
+    if (token && authPages.includes(currentPage)) {
+        window.location.href = redirectUrl || 'my_collections_index.html';
+        return true;
+    }
 
-  if (isAuthPage && token) {
-      window.location.href = redirectUrl || 'my_collections_index.html';
-      return true;
-  }
-
-  return !!token;
+    return !!token;
 }
 
 // Вспомогательные функции
@@ -359,6 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
             usernameElements.forEach(element => {
                 element.textContent = username.split('@')[0] || username;
             });
+
         }
     }
 
@@ -424,90 +426,58 @@ function getAllUsers() {
 }
 
 // Загрузка профиля пользователя на странице аккаунта
-function loadUserCollections() {
-    if (document.querySelector('.my-collections')) {
-        showLoader(true);
-        getCollections()
-            .then(collections => {
-                const collectionsContainer = document.querySelector('.collections');
-                collectionsContainer.innerHTML = ''; // Clear existing
-                
-                collections.forEach(collection => {
-                    const collectionElement = document.createElement('div');
-                    collectionElement.className = 'collection-preview';
-                    collectionElement.innerHTML = `
-                        <img class="mask-group" src="${collection.image || 'img/money.png'}" />
-                        <div class="text-wrapper-6">${collection.name}</div>
-                        <div class="number-of-elements">
-                            <div class="text-wrapper-7">Количество лотов в коллекции:</div>
-                            <div class="text-wrapper-7">${collection.items_count || 0}</div>
-                        </div>
-                        <div class="collection-actions">
-                            <button class="edit-collection" data-id="${collection.id}">✏️</button>
-                            <button class="delete-collection" data-id="${collection.id}">🗑️</button>
-                        </div>
-                    `;
-                    collectionsContainer.appendChild(collectionElement);
-                    
-                    // Add click handler
-                    collectionElement.querySelector('.edit-collection').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        editCollection(collection.id);
-                    });
-                    
-                    collectionElement.querySelector('.delete-collection').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteCollection(collection.id)
-                            .then(() => window.location.reload());
-                    });
-                    
-                    collectionElement.addEventListener('click', function() {
-                        window.location.href = `in_collection_index.html?collection_id=${collection.id}`;
-                    });
+function loadUserProfile() {
+    if (document.querySelector('.my-account')) {
+        getUserProfile()
+            .then(user => {
+                document.querySelectorAll('.text-wrapper-3, .username-display').forEach(el => {
+                    el.textContent = user.username || 'Имя пользователя';
                 });
+                document.querySelector('.text-wrapper-13').textContent = user.email || 'example@gmail.com';
+                document.querySelector('.text-wrapper-15').textContent = user.phone || '+7 (999)-999-99 99';
+                document.querySelector('.text-wrapper-16').textContent = 
+                    user.birth_date ? new Date(user.birth_date).toLocaleDateString() : '__.__.____';
             })
             .catch(error => {
-                console.error('Ошибка загрузки коллекций:', error);
-                showError(document.body, 'Не удалось загрузить коллекции');
-            })
-            .finally(() => showLoader(false));
+                console.error('Ошибка загрузки профиля:', error);
+            });
     }
 }
 
-function editCollection(collectionId) {
-    getCollections()
-        .then(collections => {
-            const collection = collections.find(c => c.id === collectionId);
-            if (!collection) return;
+function editCollectionItem(itemId) {
+    getCollectionItem(itemId)
+        .then(item => {
+            const newTitle = prompt('Название предмета:', item.title);
+            if (newTitle === null) return;
             
-            const newName = prompt('Название коллекции:', collection.name);
-            if (newName === null) return;
+            const newDescription = prompt('Описание:', item.description);
+            const newYear = prompt('Год:', item.year);
+            const newCountry = prompt('Страна:', item.country);
+            const isPublic = confirm('Сделать предмет публичным?');
             
-            const newDescription = prompt('Описание:', collection.description);
-            const newCategory = prompt('ID категории:', collection.category_id);
-            if (!newCategory || isNaN(newCategory)) {
-                showError(document.body, 'ID категории должен быть числом');
-                return;
-            }
-            
-            const isPublic = confirm('Сделать коллекцию публичной?');
+            const itemData = {
+                title: newTitle,
+                description: newDescription,
+                year: newYear,
+                country: newCountry,
+                is_public: isPublic
+            };
             
             showLoader(true);
-            updateCollection(collectionId, {
-                name: newName,
-                description: newDescription,
-                category_id: parseInt(newCategory),
-                is_public: isPublic
-            })
+            updateCollectionItem(itemId, itemData)
                 .then(() => {
-                    showSuccess('Коллекция обновлена');
-                    window.location.reload();
+                    showSuccess('Предмет успешно обновлен');
+                    setTimeout(() => window.location.reload(), 1500);
                 })
                 .catch(error => {
-                    console.error('Ошибка обновления коллекции:', error);
-                    showError(document.body, error.message || 'Ошибка обновления коллекции');
+                    console.error('Ошибка обновления предмета:', error);
+                    showError(document.body, 'Не удалось обновить предмет: ' + error.message);
                 })
                 .finally(() => showLoader(false));
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки предмета:', error);
+            showError(document.body, 'Не удалось загрузить данные предмета');
         });
 }
 
@@ -524,293 +494,185 @@ function setupProfileEdit() {
 }
 
 // Редактирование профиля пользователя
-// Update the editUserProfile function in auth.js
 function editUserProfile() {
-    const currentUsername = document.querySelector('.username-display').textContent;
-    const currentEmail = document.querySelector('.email-display').textContent;
-    const currentPhone = document.querySelector('.phone-display').textContent;
-    const currentBirthDate = document.querySelector('.birthdate-display').textContent;
-    
-    const newUsername = prompt('Имя пользователя:', currentUsername);
-    if (newUsername === null) return;
-    
-    const newPhone = prompt('Телефон:', currentPhone);
-    const newBirthDate = prompt('Дата рождения (ДД-ММ-ГГГГ):', currentBirthDate);
-    
-    // Validate date format
-    if (newBirthDate && !/^\d{2}-\d{2}-\d{4}$/.test(newBirthDate)) {
-        showError(document.body, 'Неверный формат даты. Используйте ДД-ММ-ГГГГ');
-        return;
-    }
-    
-    const userData = {
-        app_id: 1,
-        username: newUsername,
-        phone: newPhone || null,
-        birth_date: newBirthDate || null
-    };
-    
-    showLoader(true);
-    updateUserProfile(userData)
-        .then(updatedUser => {
-            showSuccess('Профиль успешно обновлен');
-            // Update displayed values
-            document.querySelector('.username-display').textContent = updatedUser.username || newUsername;
-            document.querySelector('.phone-display').textContent = updatedUser.phone || newPhone;
-            document.querySelector('.birthdate-display').textContent = 
-                updatedUser.birth_date ? formatDate(updatedUser.birth_date) : newBirthDate;
+    getUserProfile()
+        .then(currentUser => {
+            const newUsername = prompt('Имя пользователя:', currentUser.username || '');
+            if (newUsername === null) return;
             
-            // Update localStorage if email changed
-            if (updatedUser.email && updatedUser.email !== currentEmail) {
-                localStorage.setItem('userEmail', updatedUser.email);
-                document.querySelector('.email-display').textContent = updatedUser.email;
-            }
+            const newPhone = prompt('Телефон:', currentUser.phone || '');
+            const newBirthDate = prompt('Дата рождения (ДД-ММ-ГГГГ):', 
+                currentUser.birth_date ? formatDate(currentUser.birth_date, 'DD-MM-YYYY') : '');
+            
+            const userData = {
+                app_id: 1,
+                username: newUsername,
+                phone: newPhone,
+                birth_date: newBirthDate
+            };
+            
+            showLoader(true);
+            updateUserProfile(userData)
+                .then(updatedUser => {
+                    showSuccess('Профиль успешно обновлен');
+                    // Обновляем данные на странице
+                    document.querySelectorAll('.username-display, .text-wrapper-3').forEach(el => {
+                        el.textContent = updatedUser.username || newUsername;
+                    });
+                    document.querySelectorAll('.phone-display').forEach(el => {
+                        el.textContent = updatedUser.phone || newPhone;
+                    });
+                    document.querySelectorAll('.birthdate-display').forEach(el => {
+                        el.textContent = updatedUser.birth_date ? 
+                            formatDate(updatedUser.birth_date) : newBirthDate;
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка обновления профиля:', error);
+                    showError(document.body, 'Не удалось обновить профиль: ' + error.message);
+                })
+                .finally(() => showLoader(false));
         })
         .catch(error => {
-            console.error('Ошибка обновления профиля:', error);
-            showError(document.body, error.message || 'Не удалось обновить профиль');
-        })
-        .finally(() => showLoader(false));
+            console.error('Ошибка получения профиля:', error);
+            showError(document.body, 'Не удалось загрузить текущий профиль');
+        });
 }
 
 // Функция для форматирования даты
-function formatDate(dateString) {
-    if (!dateString) return '__.__.____';
+function formatDate(dateString, format = 'DD.MM.YYYY') {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU');
+    
+    if (isNaN(date.getTime())) {
+        // Если дата невалидна, попробуем разобрать в формате DD-MM-YYYY
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+            date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        }
+    }
+    
+    if (isNaN(date.getTime())) return dateString; // Возвращаем как есть, если не удалось распарсить
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    if (format === 'DD-MM-YYYY') {
+        return `${day}-${month}-${year}`;
+    } else {
+        return `${day}.${month}.${year}`;
+    }
 }
 
 function loadUserCollections() {
     if (document.querySelector('.my-collections')) {
-        // В реальной реализации здесь будет запрос к API для получения коллекций
-        // Пока используем mock-данные
-        const mockCollections = [
-            {
-                id: 1,
-                name: "Монеты XXI века",
-                items_count: 1,
-                image: "img/money.png"
+        const token = localStorage.getItem('userToken');
+        if (!token) return;
+
+        fetch(`${API_URL}/keeper/collections`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        ];
-        
-        const collectionsContainer = document.querySelector('.collections');
-        
-        mockCollections.forEach(collection => {
-            const collectionElement = document.createElement('div');
-            collectionElement.className = 'collection-preview';
-            collectionElement.innerHTML = `
-                <img class="mask-group" src="${collection.image}" />
-                <div class="text-wrapper-6">${collection.name}</div>
-                <div class="number-of-elements">
-                    <div class="text-wrapper-7">Количество лотов в коллекции:</div>
-                    <div class="text-wrapper-7">${collection.items_count}</div>
-                </div>
-            `;
-            collectionsContainer.appendChild(collectionElement);
-            
-            // Добавляем обработчик клика
-            collectionElement.addEventListener('click', function() {
-                window.location.href = `in_collection_index.html?collection_id=${collection.id}`;
-            });
-        });
-    }
-}
-
-// работа с эл-тами коллекции
-// Collection CRUD operations
-function getCollections() {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collections`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(handleResponse);
-}
-
-function createCollection(collectionData) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            name: collectionData.name,
-            description: collectionData.description || '',
-            category_id: parseInt(collectionData.category_id) || 1,
-            is_public: collectionData.is_public || false
         })
-    })
-    .then(handleResponse);
-}
+        .then(handleResponse)
+        .then(collections => {
+            const collectionsContainer = document.querySelector('.collections');
+            collectionsContainer.innerHTML = '';
 
-function updateCollection(collectionId, collectionData) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(collectionData)
-    })
-    .then(handleResponse);
-}
+            collections.forEach(collection => {
+                const collectionElement = document.createElement('div');
+                collectionElement.className = 'collection-preview';
+                collectionElement.innerHTML = `
+                    <img class="mask-group" src="${collection.image || 'img/default-collection.png'}" />
+                    <div class="text-wrapper-6">${collection.name}</div>
+                    <div class="number-of-elements">
+                        <div class="text-wrapper-7">Количество лотов в коллекции:</div>
+                        <div class="text-wrapper-7">${collection.items_count || '0'}</div>
+                    </div>
+                `;
+                collectionsContainer.appendChild(collectionElement);
 
-function deleteCollection(collectionId) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(handleResponse);
-}
-
-function setupCollectionPage() {
-    if (document.querySelector('.in-collection')) {
-        // Получаем ID коллекции из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const collectionId = urlParams.get('collection_id');
-        
-        // Загружаем данные коллекции (в реальной реализации - запрос к API)
-        const mockCollection = {
-            id: collectionId || 1,
-            name: "Монеты XXI века",
-            items_count: 1,
-            items: [
-                {
-                    id: 1,
-                    name: "Американский мемориальный парк",
-                    image: "img/moneta_american.png",
-                    year: "2019",
-                    country: "США",
-                    category: "Монеты"
-                }
-            ]
-        };
-        
-        // Устанавливаем название коллекции
-        document.querySelector('.text-wrapper-14').textContent = mockCollection.name;
-        document.querySelector('.text-wrapper-12').textContent = mockCollection.items_count;
-        
-        // Обработчик для кнопки добавления элемента
-        document.querySelector('.add-element').addEventListener('click', function(e) {
-            e.preventDefault();
-            addCollectionItem(mockCollection.id);
+                collectionElement.addEventListener('click', function() {
+                    window.location.href = `in_collection_index.html?collection_id=${collection.id}`;
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки коллекций:', error);
+            showError(document.body, 'Не удалось загрузить коллекции');
         });
     }
 }
 
+// Инициализация обработчиков для страницы коллекций
+function setupCollectionsPage() {
+    if (document.querySelector('.my-collections')) {
+        // Загружаем коллекции пользователя
+        loadUserCollections();
+        
+        // Настраиваем кнопку создания коллекции
+        const addCollectionBtn = document.querySelector('.add-collection');
+        if (addCollectionBtn) {
+            addCollectionBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                createNewCollection();
+            });
+        }
+    }
+}
+
+// Обновленная функция добавления элемента в коллекцию
 function addCollectionItem(collectionId) {
-    const itemTitle = prompt('Введите название предмета:');
-    if (!itemTitle) return;
+    const title = prompt('Введите название предмета:');
+    if (!title) return;
     
-    const itemDescription = prompt('Описание предмета:', '');
-    const itemCategory = prompt('ID категории (число):', '1');
-    if (!itemCategory || isNaN(itemCategory)) {
+    const description = prompt('Описание предмета:', '');
+    const categoryId = prompt('ID категории (число):', '1');
+    if (!categoryId || isNaN(categoryId)) {
         showError(document.body, 'ID категории должен быть числом');
         return;
     }
     
-    const itemCountry = prompt('Страна:', '');
-    const itemYear = prompt('Год:', '');
+    const country = prompt('Страна:', '');
+    const year = prompt('Год:', '');
     const isPublic = confirm('Сделать предмет публичным?');
     
+    // В реальном приложении здесь была бы загрузка изображений
+    const itemImages = ['image1.jpg', 'image2.jpg'];
+    
     const itemData = {
-        title: itemTitle,
-        description: itemDescription,
-        category_id: parseInt(itemCategory),
-        item_images_url: [],
+        collection_id: parseInt(collectionId),
+        title: title,
+        description: description,
+        category_id: parseInt(categoryId),
+        item_images_url: itemImages,
         is_public: isPublic,
-        country: itemCountry,
-        year: itemYear
+        country: country,
+        year: year
     };
     
     showLoader(true);
-    createCollectionItem(collectionId, itemData)
+    createCollectionItem(itemData)
         .then(data => {
-            showSuccess('Предмет добавлен в коллекцию');
+            showSuccess('Предмет успешно добавлен в коллекцию!');
             setTimeout(() => window.location.reload(), 1500);
         })
         .catch(error => {
             console.error('Ошибка добавления предмета:', error);
-            showError(document.body, error.message || 'Ошибка добавления предмета');
+            showError(document.body, 'Не удалось добавить предмет: ' + error.message);
         })
         .finally(() => showLoader(false));
 }
-// Item CRUD operations
-function getCollectionItems(collectionId) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/${collectionId}/items`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(handleResponse);
-}
-
-function createCollectionItem(collectionId, itemData) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/item`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            collection_id: parseInt(collectionId),
-            title: itemData.title,
-            description: itemData.description || '',
-            category_id: parseInt(itemData.category_id) || 1,
-            item_images_url: itemData.item_images_url || [],
-            is_public: itemData.is_public || false,
-            country: itemData.country || '',
-            year: itemData.year || ''
-        })
-    })
-    .then(handleResponse);
-}
-
-function updateCollectionItem(itemId, itemData) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/item/${itemId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(itemData)
-    })
-    .then(handleResponse);
-}
-
-function deleteCollectionItem(itemId) {
-    const token = localStorage.getItem('userToken');
-    return fetch(`${API_URL}/keeper/collection/item/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(handleResponse);
-}
 
 
-// Добавляем вызов в инициализацию
-document.addEventListener('DOMContentLoaded', function() {
-    setupCollectionPage();
-});
 
 // изменить аватар
 function setupAvatarChange() {
-    const avatarInput = document.querySelector('.text-wrapper-6'); // Кнопка "Изменить аватар"
-    if (avatarInput) {
+    const avatarInputs = document.querySelectorAll('.text-wrapper-2, .text-wrapper-6');
+    
+    avatarInputs.forEach(avatarInput => {
         avatarInput.addEventListener('click', function() {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -822,11 +684,11 @@ function setupAvatarChange() {
                 
                 try {
                     showLoader(true);
-                    // Здесь код для загрузки аватара на сервер
+                    await uploadAvatar(file);
                     showSuccess('Аватар успешно обновлен');
                     setTimeout(() => window.location.reload(), 1500);
                 } catch (error) {
-                    showError(document.body, 'Ошибка загрузки аватара');
+                    showError(document.body, 'Ошибка загрузки аватара: ' + error.message);
                 } finally {
                     showLoader(false);
                 }
@@ -834,9 +696,254 @@ function setupAvatarChange() {
             
             fileInput.click();
         });
+    });
+}
+
+// Функция для получения коллекции по ID
+function getCollectionById(collectionId) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+// Функция для получения всех коллекций пользователя
+function getUserCollections() {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collections`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+// Функция для обновления коллекции
+function updateCollection(collectionData) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collection`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(collectionData)
+    })
+    .then(handleResponse);
+}
+
+// Функция для удаления коллекции
+function deleteCollection(collectionId) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collection/${collectionId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+// Функция для создания элемента коллекции
+function createCollectionItem(itemData) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/item`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(itemData)
+    })
+    .then(handleResponse);
+}
+
+// Функция для обновления элемента коллекции
+function updateCollectionItem(itemId, itemData) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/item/${itemId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(itemData)
+    })
+    .then(handleResponse);
+}
+
+// Функция для удаления элемента коллекции
+function deleteCollectionItem(itemId) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/item/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+// Функция создания коллекции
+function createNewCollection() {
+    const collectionName = prompt('Введите название коллекции:');
+    if (!collectionName) return;
+
+    const description = prompt('Описание коллекции:', '');
+    const categoryId = prompt('ID категории (число):', '1');
+    if (!categoryId || isNaN(categoryId)) {
+        showError(document.body, 'ID категории должен быть числом');
+        return;
+    }
+
+    const isPublic = confirm('Сделать коллекцию публичной?');
+
+    const collectionData = {
+        name: collectionName,
+        description: description,
+        category_id: parseInt(categoryId),
+        is_public: isPublic
+    };
+
+    showLoader(true);
+    createCollection(collectionData)
+        .then(data => {
+            showSuccess('Коллекция успешно создана!');
+            setTimeout(() => window.location.reload(), 1500);
+        })
+        .catch(error => {
+            console.error('Ошибка создания коллекции:', error);
+            showError(document.body, 'Не удалось создать коллекцию: ' + error.message);
+        })
+        .finally(() => showLoader(false));
+}
+
+// Инициализация обработчиков для страницы аккаунта
+function setupAccountPage() {
+    if (document.querySelector('.my-account')) {
+        // Загружаем профиль пользователя
+        loadUserProfile();
+        
+        // Настраиваем кнопки редактирования
+        const editButtons = document.querySelectorAll('.iconamoon-edit, .text-wrapper-9');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                editUserProfile();
+            });
+        });
+        
+        // Настраиваем изменение аватара
+        setupAvatarChange();
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    setupAvatarChange();
-});
+// Инициализация обработчиков для страницы элементов коллекции
+function setupCollectionItemsPage() {
+    if (document.querySelector('.in-collection')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection_id');
+
+        if (collectionId) {
+            Promise.all([
+                getCollectionById(collectionId),
+                loadCollectionItems(collectionId)
+            ])
+            .then(([collection, items]) => {
+                document.querySelector('.text-wrapper-14').textContent = collection.name;
+                document.querySelector('.text-wrapper-12').textContent = items.length || '0';
+
+                const itemsContainer = document.querySelector('.items');
+                itemsContainer.innerHTML = '';
+
+                items.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'item';
+                    itemElement.innerHTML = `
+                        <img class="mask-group" src="${item.item_images_url?.[0] || 'img/default-item.png'}" />
+                        <div class="text-wrapper-6">${item.title}</div>
+                        <div class="year">
+                            <div class="text-wrapper-7">Год:</div>
+                            <div class="text-wrapper-8">${item.year || 'не указан'}</div>
+                        </div>
+                        <div class="country">
+                            <div class="text-wrapper-7">Страна:</div>
+                            <div class="text-wrapper-8">${item.country || 'не указана'}</div>
+                        </div>
+                        <div class="category">
+                            <div class="text-wrapper-7">Категория:</div>
+                            <div class="text-wrapper-8">${item.category || 'не указана'}</div>
+                        </div>
+                        <button class="delete-item" data-item-id="${item.id}">Удалить</button>
+                    `;
+                    itemsContainer.appendChild(itemElement);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки коллекции:', error);
+                showError(document.body, 'Не удалось загрузить коллекцию');
+            });
+        }
+    }
+}
+
+function loadCollectionItems(collectionId) {
+    const token = localStorage.getItem('userToken');
+    
+    return fetch(`${API_URL}/keeper/collection/${collectionId}/items`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(handleResponse);
+}
+
+function uploadAvatar(file) {
+    const token = localStorage.getItem('userToken');
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    return fetch(`${API_URL}/keeper/user/avatar`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    })
+    .then(handleResponse);
+}
+
+function setupItemDeletion() {
+    const itemsContainer = document.querySelector('.items');
+    if (itemsContainer) {
+        itemsContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-item')) {
+                e.preventDefault();
+                const itemId = e.target.dataset.itemId;
+                if (confirm('Вы уверены, что хотите удалить этот предмет?')) {
+                    deleteCollectionItem(itemId)
+                        .then(() => {
+                            showSuccess('Предмет успешно удален');
+                            setTimeout(() => window.location.reload(), 1000);
+                        })
+                        .catch(error => {
+                            showError(document.body, 'Ошибка удаления предмета: ' + error.message);
+                        });
+                }
+            }
+        });
+    }
+}

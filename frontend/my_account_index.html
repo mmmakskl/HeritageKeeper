@@ -56,6 +56,26 @@
 				<div class="text-wrapper-16 birthdate-display">__.__.____</div>
 			</div>
 		</div>
+		<!-- Добавить обычные формы -->
+<form method="POST" action="/update_profile" class="profile-form" style="display:none;">
+	<input type="text" name="username" value="Имя пользователя">
+	<input type="email" name="email" value="example@gmail.com">
+	<input type="tel" name="phone" value="+7 (999)-999-99 99">
+	<button type="submit">Сохранить</button>
+  </form>
+  
+  <script>
+  // Если JS включен - скрываем обычные формы и показываем улучшенный интерфейс
+  document.addEventListener('DOMContentLoaded', function() {
+	const forms = document.querySelectorAll('form[method="POST"]');
+	forms.forEach(form => form.style.display = 'none');
+	
+	// Инициализация улучшенного интерфейса
+	if (typeof initEnhancedUI === 'function') {
+	  initEnhancedUI();
+	}
+  });
+  </script>
         <script src="navigation_private.js"></script>
         <script src="auth.js"></script>
 		<script>

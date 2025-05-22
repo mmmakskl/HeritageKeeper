@@ -384,3 +384,13 @@
   color: #e0e0e0;
   transform: scale(1.02);
 }
+.collection-preview:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.add-collection:hover {
+    background-color: #f0f0f0;
+    transition: all 0.3s ease;
+}
