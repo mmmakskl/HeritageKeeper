@@ -2,33 +2,48 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" href="in_collection_globals.css" />
-		<link rel="stylesheet" href="in_collection_style.css" />
+		<link rel="stylesheet" href="css/in_collection_globals.css" />
+		<link rel="stylesheet" href="css/in_collection_style.css" />
+        <title>Содержимое коллекции - КоллекционерЪ</title>
+        <style>
+            /* Стили для кнопок действий над элементом */
+            .item-actions {
+                margin-top: 10px;
+                display: flex;
+                gap: 10px;
+            }
+            .item-actions button {
+                padding: 5px 10px;
+                border: 1px solid #ccc;
+                background-color: #f0f0f0;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+            .item-actions button:hover {
+                background-color: #e0e0e0;
+            }
+        </style>
 	</head>
-	<body>
-		<div class="in-collection">
+	<body class="in-collection"> <div class="in-collection">
 			<div class="div">
 				<div class="overlap-group">
-					<img class="codicon-account" src="img/user.png" />
+					<img class="codicon-account" src="img/user.png" alt="Аватар"/>
 					<div class="HEADING">
 						<div class="view"><div class="text-wrapper">КоллекционерЪ</div></div>
 					</div>
 					<div class="text-wrapper-2">Изменить аватар</div>
 					<div class="user-name">
-						<img class="iconamoon-edit" src="img/pencil.png" />
-						<div class="text-wrapper-3">Имя пользователя</div>
-					</div>
+						<img class="iconamoon-edit" src="img/pencil.png" alt="Редактировать имя"/>
+						<div class="text-wrapper-3">Имя пользователя</div> </div>
 					<div class="tabs">
 						<div class="div-wrapper"><div class="text-wrapper-4">Мои коллекции</div></div>
 					</div>
 					<div class="tabs-2">
 						<div class="div-wrapper"><div class="text-wrapper-5">Изменить профиль</div></div>
-						<div class="exit"><div class="text-wrapper-5">Выход</div></div>
-					</div>
+						<div class="exit"><div class="text-wrapper-5">Выход</div></div> </div>
 				</div>
 				<div class="items">
-					<div class="item">
-						<img class="mask-group" src="img/moneta_american.png" />
+					<div class="item" style="display:none;"> <img class="mask-group" src="img/moneta_american.png" alt="Элемент коллекции"/>
 						<div class="text-wrapper-6">Американский мемориальный парк</div>
 						<div class="year">
 							<div class="text-wrapper-7">Год:</div>
@@ -42,41 +57,29 @@
 							<div class="text-wrapper-7">Категория:</div>
 							<div class="text-wrapper-8">Монеты</div>
 						</div>
+                        <div class="item-actions">
+                             <button class="edit-item" data-item-id="1">✏️</button>
+                             <button class="delete-item" data-item-id="1">🗑️</button>
+                        </div>
 					</div>
 				</div>
 				<div class="text-wrapper-10">Коллекция:</div>
 				<div class="text-wrapper-11">Количество элементов коллекции:</div>
-				<div class="text-wrapper-12">1</div>
-				<div class="add-element"><img class="img" src="img/plus.png" /></div>
-				<div class="sort"><img class="img" src="img/sorting.png" /></div>
-				<div class="filter"><img class="img" src="img/filter.png" /></div>
+				<div class="text-wrapper-12">0</div> <div class="add-element"><img class="img" src="img/plus.png" alt="Добавить элемент"/></div> <div class="sort"><img class="img" src="img/sorting.png" alt="Сортировка"/></div>
+				<div class="filter"><img class="img" src="img/filter.png" alt="Фильтр"/></div>
 				<div class="search-for-element">
 					<div class="frame"><div class="text-wrapper-13">Поиск</div></div>
 				</div>
-				<div class="text-wrapper-14">Монеты XXI века</div>
-			</div>
+				<div class="text-wrapper-14">Название коллекции</div> </div>
 		</div>
-		<!-- Добавить обычные формы -->
-<form method="POST" action="/update_profile" class="profile-form" style="display:none;">
-	<input type="text" name="username" value="Имя пользователя">
-	<input type="email" name="email" value="example@gmail.com">
-	<input type="tel" name="phone" value="+7 (999)-999-99 99">
-	<button type="submit">Сохранить</button>
-  </form>
-  
-  <script>
-  // Если JS включен - скрываем обычные формы и показываем улучшенный интерфейс
-  document.addEventListener('DOMContentLoaded', function() {
-	const forms = document.querySelectorAll('form[method="POST"]');
-	forms.forEach(form => form.style.display = 'none');
-	
-	// Инициализация улучшенного интерфейса
-	if (typeof initEnhancedUI === 'function') {
-	  initEnhancedUI();
-	}
-  });
-  </script>
-        <script src="navigation_private.js"></script>
-        <script src="auth.js"></script>
-	</body>
+
+        <form method="POST" action="/update_profile" class="profile-form" style="display:none;">
+            <input type="text" name="username" value="Имя пользователя">
+            <input type="email" name="email" value="example@gmail.com">
+            <input type="tel" name="phone" value="+7 (999)-999-99 99">
+            <button type="submit">Сохранить</button>
+        </form>
+
+        <script type="module" src="js/main.js"></script>
+        </body>
 </html>

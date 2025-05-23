@@ -2,11 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="home_page_globals.css" />
-    <link rel="stylesheet" href="home_page_style.css" />
-  </head>
-  <body>
-    <div class="home">
+    <link rel="stylesheet" href="css/home_page_globals.css" />
+    <link rel="stylesheet" href="css/home_page_style.css" />
+    <title>КоллекционерЪ - Главная</title> </head>
+  <body class="home"> <div class="home">
       <div class="home-page">
         <div class="HEADING">
           <div class="view"><div class="text-wrapper">КоллекционерЪ</div></div>
@@ -15,11 +14,11 @@
             <div class="div">        </div>
           </div>
           <div class="add-account" id="registerBtn">
-            <div class="account-circle-add"><img class="img" src="img/account-circle-add-fill.png" /></div>
+            <div class="account-circle-add"><img class="img" src="img/account-circle-add-fill.png" alt="Зарегистрироваться"/></div>
             <div class="text-wrapper-2">Зарегистрироваться</div>
         </div>
           <div class="log-in" id="loginBtn">
-            <div class="login-streamline"><img class="img" src="img/login.png" /></div>
+            <div class="login-streamline"><img class="img" src="img/login.png" alt="Войти"/></div>
             <div class="text-wrapper-3">Войти</div>
         </div>
         </div>
@@ -32,7 +31,7 @@
                 <div class="museums">
                   <div class="overlap-group-2">
                     <div class="overlap-group-3">
-                      <img class="mask-group-2" src="img/mus_gal.jpg" />
+                      <img class="mask-group-2" src="img/mus_gal.jpg" alt="Музеи и галереи"/>
                       <div class="text-wrapper-4">Музеи и галереи</div>
                     </div>
                     <p class="text-wrapper-5">Упростите документооборот и сохраните историю каждого предмета в цифре</p>
@@ -46,7 +45,7 @@
                 <div class="investors">
                   <div class="overlap-group-2">
                     <div class="overlap-group-3">
-                      <img class="mask-group-2" src="img/investors.png" />
+                      <img class="mask-group-2" src="img/investors.png" alt="Инвесторы"/>
                       <div class="text-wrapper-4">Инвесторы</div>
                     </div>
                     <p class="text-wrapper-6">Инвестируйте осознанно – с аналитикой и удобным управлением активами.</p>
@@ -59,7 +58,7 @@
                 </div>
                 <div class="prof-collectioners">
                   <div class="overlap-group-2">
-                    <img class="mask-group-3" src="img/coll_pro.png" />
+                    <img class="mask-group-3" src="img/coll_pro.png" alt="Профессиональные коллекционеры"/>
                     <div class="text-wrapper-8">Коллекционеры-профессионалы</div>
                     <p class="text-wrapper-9">
                       Полный контроль над коллекцией – от оценки до продажи, без риска потери данных.
@@ -74,7 +73,7 @@
                 <div class="nonprof">
                   <div class="overlap-group-2">
                     <div class="overlap-group-4">
-                      <img class="mask-group-2" src="img/coll_lyub.png" />
+                      <img class="mask-group-2" src="img/coll_lyub.png" alt="Коллекционеры-любители"/>
                       <div class="text-wrapper-11">Коллекционеры-любители</div>
                     </div>
                     <p class="text-wrapper-12">
@@ -92,18 +91,16 @@
                 </div>
               </div>
               <div class="ellipse"></div>
-              <img class="move-right" src="img/hand.png" />
+              <img class="move-right" src="img/hand.png" alt="Прокрутка"/>
             </div>
           </div>
           <div class="user-choose-us">
             <p class="section-title">Почему стоит выбрать нашу платформу?</p>
             <div class="features-container">
                 <div class="feature-item">
-
                     <p class="feature-text">                </p>
                   </div>
                 <div class="feature-item">
-
                     <p class="feature-text">                </p>
                   </div>
               <div class="feature-item">
@@ -137,7 +134,7 @@
         <div class="button-up">
           <div class="overlap-3">
             <div class="ellipse-2"></div>
-            <img class="up-icon" src="img/up.png" />
+            <img class="up-icon" src="img/up.png" alt="Вверх"/>
           </div>
         </div>
         <p class="text-wrapper-20">
@@ -150,26 +147,11 @@
           <span class="span">Теплинская Александрина Николаевна<br /></span>
           <span class="text-wrapper-21">руководитель проекта</span>
         </p>
-        <img class="logo" src="img/logo-3.png" />
+        <img class="logo" src="img/logo-3.png" alt="Логотип проекта"/>
       </div>
     </div>
     <div class="box"><div class="mask-group"></div></div>
-    <script src="navigation.js"></script>
-    <script>
-      // Добавляем обработчики для кнопок на главной странице
-      document.addEventListener('DOMContentLoaded', function() {
-        // Кнопка "Зарегистрироваться"
-        document.getElementById('registerBtn').addEventListener('click', function(e) {
-          e.preventDefault();
-          window.location.href = 'sign_up_index.html';
-        });
 
-        // Кнопка "Войти"
-        document.getElementById('loginBtn').addEventListener('click', function(e) {
-          e.preventDefault();
-          window.location.href = 'log_in_index.html';
-        });
-      });
-    </script>
-  </body>
+    <script type="module" src="js/main.js"></script>
+    </body>
 </html>

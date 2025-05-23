@@ -2,26 +2,30 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="log_in_globals.css" />
-    <link rel="stylesheet" href="log_in_style.css" />
+    <link rel="stylesheet" href="css/log_in_globals.css" />
+    <link rel="stylesheet" href="css/log_in_style.css" />
+    <title>Вход - КоллекционерЪ</title>
     <style>
-    .login {
+    /* Стили для центрирования, если они специфичны только для этой страницы */
+    body.login-page { /* Добавлен класс для специфичности */
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
+        background-color: #f4f4f4; /* Пример фона */
     }
-    .div {
+    .login .div { /* Контейнер формы */
         width: 100%;
         max-width: 400px;
         padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
     </style>
 </head>
-<body>
-    <div class="login">
-        <div class="div">
-            <form id="userLoginForm">  <!-- Добавлена форма с правильным ID -->
+<body class="login-page"> <div class="login"> <div class="div">
+            <form id="loginForm" class="login-form">
                 <div class="overlap-group">
                     <div class="frame-wrapper">
                         <div class="label-wrapper">
@@ -33,7 +37,7 @@
                             <input type="password" class="input-field" placeholder="Введите пароль" required />
                         </div>
                     </div>
-                    <div class="frame-2"><div class="text-wrapper-4">Войти</div></div>
+                    <div class="frame-2"><button type="submit" class="text-wrapper-4 submit-btn">Войти</button></div>
                     <div class="frame"><div class="text-wrapper-2">Создать аккаунт</div></div>
                 </div>
             </form>
@@ -41,7 +45,7 @@
             <div class="view"><div class="text-wrapper-6">КоллекционерЪ</div></div>
         </div>
     </div>
-    <script src="auth.js"></script>  <!-- Подключаем только auth.js -->
-    <script src="navigation.js"></script> 
-</body>
+
+    <script type="module" src="js/main.js"></script>
+    </body>
 </html>

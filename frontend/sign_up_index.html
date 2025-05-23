@@ -2,25 +2,29 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="sign_up_globals.css" />
-    <link rel="stylesheet" href="sign_up_style.css" />
+    <link rel="stylesheet" href="css/sign_up_globals.css" />
+    <link rel="stylesheet" href="css/sign_up_style.css" />
+    <title>Регистрация - КоллекционерЪ</title>
     <style>
-      .login {
+      /* Стили для центрирования, если они специфичны только для этой страницы */
+      body.signup-page { /* Добавлен класс для специфичности */
           display: flex;
           justify-content: center;
           align-items: center;
           min-height: 100vh;
+          background-color: #f4f4f4; /* Пример фона */
       }
-      .div {
+      .sign-up .div { /* Контейнер формы */
           width: 100%;
           max-width: 400px;
           padding: 20px;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 0 15px rgba(0,0,0,0.1);
       }
       </style>
   </head>
-  <body>
-    <div class="sign-up">
-      <div class="div">
+  <body class="signup-page"> <div class="sign-up"> <div class="div">
         <div class="overlap-group">
           <div class="text-wrapper">Впервые у нас? Зарегистрируйтесь</div>
           <p class="p"><span class="span">Уже есть аккаунт? </span><span class="text-wrapper-2">Войти</span></p>
@@ -39,13 +43,13 @@
               <div class="frame-wrapper">
                   <input type="password" class="input-field" placeholder="Подтвердите пароль" required />
               </div>
-              <button class="create-account-button">Создать аккаунт</button>
+              <button type="button" class="create-account-button">Создать аккаунт</button>
           </div>
       </div>
         <div class="view"><div class="text-wrapper-4">КоллекционерЪ</div></div>
       </div>
     </div>
-    <script src="navigation.js"></script>
-    <script src="auth.js"></script>
-  </body>
+
+    <script type="module" src="js/main.js"></script>
+    </body>
 </html>

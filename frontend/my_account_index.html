@@ -2,14 +2,71 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" href="my_account_globals.css" />
-		<link rel="stylesheet" href="my_account_style.css" />
+		<link rel="stylesheet" href="css/my_accont_globals.css" />
+		<link rel="stylesheet" href="css/my_account_style.css" />
+        <title>Мой аккаунт - КоллекционерЪ</title>
+        <style>
+            /* Стили для input, чтобы они выглядели похоже на div */
+            .profile-input-field {
+                /* Копируем стили из .text-wrapper-11, .text-wrapper-13, .text-wrapper-15 и т.д. */
+                /* Примерные стили, подберите под ваши .text-wrapper-X */
+                font-family: inherit; /* Наследуем шрифт */
+                font-size: inherit;   /* Наследуем размер шрифта */
+                color: inherit;       /* Наследуем цвет текста */
+                background-color: transparent; /* Прозрачный фон */
+                border: 1px solid #ccc; /* Тонкая рамка для обозначения поля ввода */
+                padding: 5px;         /* Небольшой внутренний отступ */
+                width: auto; /* или 100% если нужно растянуть */
+                display: inline-block; /* или block */
+                box-sizing: border-box;
+                border-radius: 3px;
+            }
+            /* Стили для нередактируемого email */
+            #profileEmailDisplay {
+                padding: 5px;
+                border: 1px solid transparent; /* Можно сделать рамку как у input, но другого цвета */
+                display: inline-block;
+            }
+            /* Стили для кликабельных div (дата, пароль) */
+            #profileBirthdateDisplay, #profilePasswordDisplay {
+                cursor: pointer;
+                text-decoration: underline;
+                text-decoration-style: dashed;
+                padding: 5px;
+                display: inline-block;
+            }
+             /* Кнопка "Редактировать" (Сохранить) */
+            #saveProfileChangesBtn { /* Это бывший .text-wrapper-9 */
+                cursor: pointer;
+                color: #007bff; /* Сделать похожим на ссылку/кнопку */
+                text-decoration: underline;
+                padding: 5px 10px;
+                border: 1px solid #007bff;
+                border-radius: 4px;
+                display: inline-block;
+                margin-top: 10px; /* Отступ сверху */
+            }
+            #saveProfileChangesBtn:hover {
+                background-color: #f0f0f0;
+            }
+
+            /* Стили для группировки метки и значения, если нужно */
+            .profile-info-row > div {
+                margin-bottom: 5px; /* Небольшой отступ между строками информации */
+            }
+            .profile-info-row > div > span:first-child { /* Метка типа "Имя пользователя:" */
+                display: inline-block;
+                min-width: 120px; /* Чтобы выровнять значения */
+                font-weight: bold;
+            }
+
+        </style>
 	</head>
-	<body>
+	<body class="my-account">
 		<div class="my-account">
 			<div class="div">
 				<div class="overlap">
-					<img class="codicon-account" src="img/user.png" />
+					<img class="codicon-account" src="img/user.png" alt="Аватар"/>
 					<div class="HEADING">
 						<div class="view">
 							<div class="text-wrapper">КоллекционерЪ</div>
@@ -17,8 +74,8 @@
 					</div>
 					<div class="text-wrapper-2">Изменить аватар</div>
 					<div class="user-name">
-						<img class="iconamoon-edit" src="img/pencil.png" />
-						<div class="text-wrapper-3">Имя пользователя</div>
+						<img class="iconamoon-edit" src="img/pencil.png" alt="Редактировать имя"/>
+						<div class="text-wrapper-3 username-display">Имя пользователя</div>
 					</div>
 					<div class="tabs">
 						<div class="div-wrapper">
@@ -36,58 +93,50 @@
 				</div>
 				<div class="text-wrapper-6">Изменить аватар</div>
 				<div class="overlap-group">
-					<img class="img" src="img/user.png" />
+					<img class="img" id="profileAvatarImage" src="img/user.png" alt="Аватар пользователя"/>
 				</div>
 				<div class="text-wrapper-7">Информация</div>
-				<div class="text-wrapper-8">О себе:</div>
-				<div class="text-wrapper-9">редактировать</div>
-				<div class="text-wrapper-10">Имя пользователя</div>
-				<div class="text-wrapper-12">E-mail</div>
-				<div class="text-wrapper-14">Телефон</div>
-				<div class="text-wrapper-17">Дата рождения</div>
-				<div class="text-wrapper-18">Пароль</div>
-				<div class="text-wrapper-19">*******</div>
-				<div class="ph-calendar-duotone">
-					<img class="group" src="img/calendar.png" />
-				</div>
-				<div class="text-wrapper-11 username-display">TheBestCollector</div>
-				<div class="text-wrapper-13 email-display">example@gmail.com</div>
-				<div class="text-wrapper-15 phone-display">+7 (999)-999-99 99</div>
-				<div class="text-wrapper-16 birthdate-display">__.__.____</div>
+
+                <div class="text-wrapper-8">О себе:</div>
+                <div class="text-wrapper-9" id="saveProfileChangesBtn">Редактировать</div>
+
+                <div class="profile-info-container" style="margin-top: 15px;">
+                    <div class="profile-info-row">
+                        <span class="text-wrapper-10">Имя пользователя:</span>
+                        <input type="text" id="profileUsernameInput" class="profile-input-field text-wrapper-11 username-display" placeholder="Ваше имя">
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span class="text-wrapper-12">E-mail:</span>
+                        <div id="profileEmailDisplay" class="text-wrapper-13 email-display">example@gmail.com</div>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span class="text-wrapper-14">Телефон:</span>
+                        <input type="text" id="profilePhoneInput" class="profile-input-field text-wrapper-15 phone-display" placeholder="+7 (___) ___-__-__">
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span class="text-wrapper-17">Дата рождения:</span>
+                        <div id="profileBirthdateDisplay" class="text-wrapper-16 birthdate-display">__.__.____</div>
+                        <img class="group ph-calendar-duotone" src="img/calendar.png" alt="Календарь" style="vertical-align: middle; margin-left: 5px;"/>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span class="text-wrapper-18">Пароль:</span>
+                        <div id="profilePasswordDisplay" class="text-wrapper-19">*******</div>
+                    </div>
+                </div>
+
 			</div>
 		</div>
-		<!-- Добавить обычные формы -->
-<form method="POST" action="/update_profile" class="profile-form" style="display:none;">
-	<input type="text" name="username" value="Имя пользователя">
-	<input type="email" name="email" value="example@gmail.com">
-	<input type="tel" name="phone" value="+7 (999)-999-99 99">
-	<button type="submit">Сохранить</button>
-  </form>
-  
-  <script>
-  // Если JS включен - скрываем обычные формы и показываем улучшенный интерфейс
-  document.addEventListener('DOMContentLoaded', function() {
-	const forms = document.querySelectorAll('form[method="POST"]');
-	forms.forEach(form => form.style.display = 'none');
-	
-	// Инициализация улучшенного интерфейса
-	if (typeof initEnhancedUI === 'function') {
-	  initEnhancedUI();
-	}
-  });
-  </script>
-        <script src="navigation_private.js"></script>
-        <script src="auth.js"></script>
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const editButtons = document.querySelectorAll('.iconamoon-edit, .text-wrapper-9');
-				editButtons.forEach(button => {
-					button.addEventListener('click', function(e) {
-						e.preventDefault();
-						editUserProfile();
-					});
-				});
-			});
-		</script>
+		<form method="POST" action="/update_profile" class="profile-form" style="display:none;">
+            <input type="text" name="username" value="Имя пользователя">
+            <input type="email" name="email" value="example@gmail.com">
+            <input type="tel" name="phone" value="+7 (999)-999-99 99">
+            <button type="submit">Сохранить</button>
+        </form>
+
+        <script type="module" src="js/main.js"></script>
 	</body>
 </html>
